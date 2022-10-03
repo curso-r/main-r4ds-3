@@ -1,0 +1,38 @@
+---
+output: github_document
+---
+
+# R para Ciência de Dados III
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Repositório principal do curso R para Ciência de Dados III.
+
+Inscreva-se no curso: https://loja.curso-r.com/
+
+**Acesse o material completo do curso escolhendo uma das turmas abaixo**.
+
+```{r, echo = FALSE}
+knitr::kable(CursoRutils:::listar_turmas_recentes("r4ds-3"))
+```
+
+
+Em breve!
+
+
+## Plano de aula 
+
+Em breve!
+
+  
+```{r eval=FALSE, include=FALSE}
+# para criar o zip do curso:
+ CursoRutils::empacotar_material_alunos("material.txt")
+```

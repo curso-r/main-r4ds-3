@@ -39,8 +39,10 @@ params$curso |>
       " de ",
       lubridate::year(date)
     ),
-    Material = stringr::str_c("https://curso-r.github.io/", repo),
-    GitHub = stringr::str_c("https://github.com/curso-r/", repo)
+    Material = stringr::str_c("curso-r.github.io/", repo),
+    Material = stringr::str_c("[", Material, "](https://", Material, ")"),
+    GitHub = stringr::str_c("github.com/curso-r/", repo),
+    GitHub = stringr::str_c("[", GitHub, "](https://", GitHub, ")"),
   ) |>
   dplyr::arrange(dplyr::desc(date)) |>
   dplyr::select(Turma, Material, GitHub) |>

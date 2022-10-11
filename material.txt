@@ -1,3 +1,0 @@
-scripts
-dados
-main-r4ds-1.Rproj

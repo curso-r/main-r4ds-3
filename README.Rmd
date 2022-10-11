@@ -1,38 +1,59 @@
 ---
 output: github_document
+params:
+  curso: r4ds-2
 ---
 
 # R para Ciência de Dados III
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<!-- badges: start -->
+[![CC BY-NC-SA 4.0](https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+<!-- badges: end -->
+
 ```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-Repositório principal do curso R para Ciência de Dados III.
+Repositório principal do curso _R para Ciência de Dados III_.
 
 Inscreva-se no curso: https://loja.curso-r.com/
 
 **Acesse o material completo do curso escolhendo uma das turmas abaixo**.
 
 ```{r, echo = FALSE}
-knitr::kable(CursoRutils:::listar_turmas_recentes("r4ds-3"))
+params$curso |>
+  stringr::str_c('org%3Acurso-r+in%3Aname+"', ... = _, '"&per_page=100') |>
+  gh::gh("/search/repositories?q={query}", query = _) |>
+  purrr::pluck("items") |>
+  purrr::map_chr("name") |>
+  tibble::tibble(repo = _) |>
+  dplyr::filter(!stringr::str_detect(repo, "main")) |>
+  dplyr::mutate(
+    date = repo |>
+      stringr::str_extract("^[0-9]+") |>
+      lubridate::ym(),
+    Turma = stringr::str_c(
+      lubridate::month(date, TRUE, FALSE, "pt_BR.UTF-8"),
+      " de ",
+      lubridate::year(date)
+    ),
+    Material = stringr::str_c("https://curso-r.github.io/", repo),
+    GitHub = stringr::str_c("https://github.com/curso-r/", repo)
+  ) |>
+  dplyr::arrange(dplyr::desc(date)) |>
+  dplyr::select(Turma, Material, GitHub) |>
+  knitr::kable()
 ```
 
+## Plano de aula
 
-Em breve!
+6 aulas (18h) com os temas:
 
-
-## Plano de aula 
-
-Em breve!
-
-  
-```{r eval=FALSE, include=FALSE}
-# para criar o zip do curso:
- CursoRutils::empacotar_material_alunos("material.txt")
-```
+  - Organização de projetos
+  - Git/GitHub
+  - Faxina de dados
+  - Conexão com bancos de dados
+  - Pacotes
+  - GitHub Actions

@@ -4,17 +4,22 @@
     <title>R para Ciência de Dados 2</title>
     <meta charset="utf-8" />
     <meta name="author" content="" />
-    <script src="libs/header-attrs-2.13/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.17/header-attrs.js"></script>
     <link rel="stylesheet" href="css/xaringan-themer.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
+.title[
 # R para Ciência de Dados 2
+]
+.subtitle[
 ## Tidyr e Dplyr 1.0
+]
+.author[
 ### <img src = 'https://d33wubrfki0l68.cloudfront.net/9b0699f18268059bdd2e5c21538a29eade7cbd2b/67e5c/img/logo/cursor1-5.png' width = '30%'>
-### Abril de 2022
+]
 
 ---
 
@@ -64,15 +69,16 @@ imdb
 
 ```
 #&gt; # A tibble: 3,713 × 15
-#&gt;   titulo         ano diretor duracao cor   generos pais  classificacao orcamento
-#&gt;   &lt;chr&gt;        &lt;int&gt; &lt;chr&gt;     &lt;int&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;             &lt;int&gt;
-#&gt; 1 Avatar        2009 James …     178 Color Action… USA   A partir de … 237000000
-#&gt; 2 Pirates of …  2007 Gore V…     169 Color Action… USA   A partir de … 300000000
-#&gt; 3 The Dark Kn…  2012 Christ…     164 Color Action… USA   A partir de … 250000000
-#&gt; 4 John Carter   2012 Andrew…     132 Color Action… USA   A partir de … 263700000
-#&gt; 5 Spider-Man 3  2007 Sam Ra…     156 Color Action… USA   A partir de … 258000000
-#&gt; # … with 3,708 more rows, and 6 more variables: receita &lt;int&gt;, nota_imdb &lt;dbl&gt;,
-#&gt; #   likes_facebook &lt;int&gt;, ator_1 &lt;chr&gt;, ator_2 &lt;chr&gt;, ator_3 &lt;chr&gt;
+#&gt;   titulo         ano diretor duracao cor   generos pais  class…¹ orcam…² receita
+#&gt;   &lt;chr&gt;        &lt;int&gt; &lt;chr&gt;     &lt;int&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;   &lt;int&gt;
+#&gt; 1 Avatar        2009 James …     178 Color Action… USA   A part…  2.37e8  7.61e8
+#&gt; 2 Pirates of …  2007 Gore V…     169 Color Action… USA   A part…  3   e8  3.09e8
+#&gt; 3 The Dark Kn…  2012 Christ…     164 Color Action… USA   A part…  2.5 e8  4.48e8
+#&gt; 4 John Carter   2012 Andrew…     132 Color Action… USA   A part…  2.64e8  7.31e7
+#&gt; 5 Spider-Man 3  2007 Sam Ra…     156 Color Action… USA   A part…  2.58e8  3.37e8
+#&gt; # … with 3,708 more rows, 5 more variables: nota_imdb &lt;dbl&gt;,
+#&gt; #   likes_facebook &lt;int&gt;, ator_1 &lt;chr&gt;, ator_2 &lt;chr&gt;, ator_3 &lt;chr&gt;, and
+#&gt; #   abbreviated variable names ¹​classificacao, ²​orcamento
 ```
 
 ---
@@ -282,6 +288,8 @@ A versão 1.0 do pacote `dplyr` foi oficialmente lançada em junho de 2020 e con
 
 - Novas funcionalidades das funções `select()` e `rename()` e a nova função `relocate()`.
 
+Hoje vamos falar principalmente sobre a `across()` e as funções de _tidyselection_.
+
 ---
 # Motivação
 
@@ -424,9 +432,10 @@ casas %&gt;%
 
 ```
 #&gt; # A tibble: 1 × 4
-#&gt;   lote_area alvenaria_area porao_area_com_acabamento_1 porao_area_com_acabament…
+#&gt;   lote_area alvenaria_area porao_area_com_acabamento_1 porao_area_com_acabamen…¹
 #&gt;       &lt;dbl&gt;          &lt;dbl&gt;                       &lt;dbl&gt;                     &lt;dbl&gt;
 #&gt; 1    10148.           102.                        443.                      49.7
+#&gt; # … with abbreviated variable name ¹​porao_area_com_acabamento_2
 ```
 
 ---
@@ -469,16 +478,16 @@ casas %&gt;%
   group_by(rua_tipo) %&gt;%
   summarise(across(
       .cols = c(lote_area, venda_valor),
-      .fns = list("media" = mean, "mediana" = median)
+      .fns = list("md" = mean, "mn" = median)
   ))
 ```
 
 ```
 #&gt; # A tibble: 2 × 5
-#&gt;   rua_tipo    lote_area_media lote_area_media… venda_valor_med… venda_valor_med…
-#&gt;   &lt;chr&gt;                 &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
-#&gt; 1 cascalho             26607.           10420.          106663.            87425
-#&gt; 2 pavimentada          10080.            9436.          181101.           160375
+#&gt;   rua_tipo    lote_area_md lote_area_mn venda_valor_md venda_valor_mn
+#&gt;   &lt;chr&gt;              &lt;dbl&gt;        &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;
+#&gt; 1 cascalho          26607.       10420.        106663.          87425
+#&gt; 2 pavimentada       10080.        9436.        181101.         160375
 ```
 
 ---
@@ -492,17 +501,18 @@ casas %&gt;%
   group_by(rua_tipo) %&gt;%
   summarise(across(
       .cols = c(lote_area, venda_valor),
-      .fns = list("media" = mean, "mediana" = median),
+      .fns = list("md" = mean, "mn" = median),
       .names = "{.fn}_de_{.col}" # {nome função}_de_{nome coluna}
   ))
 ```
 
 ```
 #&gt; # A tibble: 2 × 5
-#&gt;   rua_tipo   media_de_lote_a… mediana_de_lote… media_de_venda_… mediana_de_vend…
-#&gt;   &lt;chr&gt;                 &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
-#&gt; 1 cascalho             26607.           10420.          106663.            87425
-#&gt; 2 pavimenta…           10080.            9436.          181101.           160375
+#&gt;   rua_tipo    md_de_lote_area mn_de_lote_area md_de_venda_valor mn_de_venda_va…¹
+#&gt;   &lt;chr&gt;                 &lt;dbl&gt;           &lt;dbl&gt;             &lt;dbl&gt;            &lt;dbl&gt;
+#&gt; 1 cascalho             26607.          10420.           106663.            87425
+#&gt; 2 pavimentada          10080.           9436.           181101.           160375
+#&gt; # … with abbreviated variable name ¹​mn_de_venda_valor
 ```
 
 ---
@@ -638,6 +648,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable

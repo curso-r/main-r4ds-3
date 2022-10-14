@@ -2,7 +2,6 @@
 title: "R para Ciência de Dados 2"
 subtitle: "Tidyr e Dplyr 1.0"
 author: "<img src = 'https://d33wubrfki0l68.cloudfront.net/9b0699f18268059bdd2e5c21538a29eade7cbd2b/67e5c/img/logo/cursor1-5.png' width = '30%'>"
-date: "`r paste(lubridate::month(Sys.Date(), label = TRUE, abbr = FALSE, locale = 'pt_BR.UTF-8'), 'de', lubridate::year(Sys.Date()))`"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -201,6 +200,8 @@ A versão 1.0 do pacote `dplyr` foi oficialmente lançada em junho de 2020 e con
 
 - Novas funcionalidades das funções `select()` e `rename()` e a nova função `relocate()`.
 
+Hoje vamos falar principalmente sobre a `across()` e as funções de _tidyselection_.
+
 ---
 # Motivação
 
@@ -324,7 +325,7 @@ casas %>%
   group_by(rua_tipo) %>%
   summarise(across(
       .cols = c(lote_area, venda_valor),
-      .fns = list("media" = mean, "mediana" = median)
+      .fns = list("md" = mean, "mn" = median)
   ))
 ```
 
@@ -338,7 +339,7 @@ casas %>%
   group_by(rua_tipo) %>%
   summarise(across(
       .cols = c(lote_area, venda_valor),
-      .fns = list("media" = mean, "mediana" = median),
+      .fns = list("md" = mean, "mn" = median),
       .names = "{.fn}_de_{.col}" # {nome função}_de_{nome coluna}
   ))
 ```

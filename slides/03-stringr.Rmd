@@ -2,7 +2,6 @@
 title: "R para Ciência de Dados 2"
 subtitle: "Stringr"
 author: "<img src = 'https://d33wubrfki0l68.cloudfront.net/9b0699f18268059bdd2e5c21538a29eade7cbd2b/67e5c/img/logo/cursor1-5.png' width = '30%'>"
-date: "`r paste(lubridate::month(Sys.Date(), label = TRUE, abbr = FALSE, locale = 'pt_BR.UTF-8'), 'de', lubridate::year(Sys.Date()))`"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -47,7 +46,7 @@ coleta de dados, então precisamos arrumá-los; podemos fazer isso do jeito fác
 - O `print()` mostra a estrutura da string, enquanto `cat()` mostra o texto
 
 ```{r}
-print("こんにちは! Está 10\u00BAC na lá fora")
+print("こんにちは! Está 10\u00BAC lá fora")
 ```
 
 - Para colocar aspas dentro de uma string, podemos __escapar__ o caractere
@@ -192,10 +191,10 @@ str_extract(c("oii", "oiii!", "oiii!!!", "oioioi!"), "i{1,2}") # Entre m e n
 # Exemplos intermináveis (cont.)
 
 ```{r}
-str_extract(c("oii", "oiii!", "oiii!!!", "oioioi!"), "[i!]+")  # Algum
-str_extract(c("banana", "TANGERINA", "maçã", "lima"), "[a-z]") # Conjuntos
-str_extract(c("oii", "oiii!", "oiii!!!", "oioioi!"), "(oi)+")  # Tudo
-str_extract(c("oii", "oiii!", "ola!!!", "oioioi!"), "(i+|!+)") # Ou
+str_extract(c("oii", "oiii!", "oiii!!!", "oioioi!"), "[i!]+")  # Ou
+str_extract(c("banana", "TANGERINA", "maçã", "lima"), "[a-z]") # Intervalo
+str_extract(c("oii", "oiii!", "oiii!!!", "oioioi!"), "(oi)+")  # E
+str_extract(c("oii", "oiii!", "ola!!!", "oioioi!"), "(i+|!+)") # Ou exclusivo
 ```
 
 ---
@@ -209,7 +208,7 @@ str_remove_all("Bom \"dia\"", "\\\"")    # Escapando escape
 ```
 
 ---
-# Exemplos intermináveis (cont.)
+# Extras
 
 ```{r}
 stringi::stri_trans_general("Váríös àçêntõs", "Latin-ASCII") # Remover acentos

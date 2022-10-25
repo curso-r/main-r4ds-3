@@ -4,7 +4,7 @@
     <title>R para Ciência de Dados 2</title>
     <meta charset="utf-8" />
     <meta name="author" content="" />
-    <script src="libs/header-attrs-2.14/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.17/header-attrs.js"></script>
     <link rel="stylesheet" href="css/xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -19,9 +19,6 @@ class: center, middle, inverse, title-slide
 ]
 .author[
 ### <img src = 'https://d33wubrfki0l68.cloudfront.net/9b0699f18268059bdd2e5c21538a29eade7cbd2b/67e5c/img/logo/cursor1-5.png' width = '30%'>
-]
-.date[
-### Maio de 2022
 ]
 
 ---
@@ -145,7 +142,7 @@ vezes, normalmente associada a um _loop_ (laço)
 
 
 ```r
-vec &lt;- 1:5
+vec &lt;- 5:9
 for (i in seq_along(vec)) {
   vec[i] &lt;- vec[i] + 10
 }
@@ -153,14 +150,14 @@ vec
 ```
 
 ```
-#&gt; [1] 11 12 13 14 15
+#&gt; [1] 15 16 17 18 19
 ```
 
 - Note como a única coisa que fazemos é aplicar uma operação em cada elemento do
 vetor (`vec[i] + 10`)
 
-- Identificamos algumas estruturas: **entrada** (vetor de 1 a 5) e **função**
-(somar 10 a cada elemento)
+- Identificamos algumas estruturas: **entrada** (vetor de 5 a 9) e **função**
+(somar 10)
 
 ---
 # Simplificando
@@ -171,7 +168,7 @@ entrada e uma função
 
 
 ```r
-vec &lt;- 1:5
+vec &lt;- 5:9
 soma_dez &lt;- function(x) {
   x + 10
 }
@@ -182,11 +179,11 @@ str(l)
 
 ```
 #&gt; List of 5
-#&gt;  $ : num 11
-#&gt;  $ : num 12
-#&gt;  $ : num 13
-#&gt;  $ : num 14
 #&gt;  $ : num 15
+#&gt;  $ : num 16
+#&gt;  $ : num 17
+#&gt;  $ : num 18
+#&gt;  $ : num 19
 ```
 
 ---
@@ -204,7 +201,7 @@ map_dbl(vec, soma_dez)
 ```
 
 ```
-#&gt; [1] 11 12 13 14 15
+#&gt; [1] 15 16 17 18 19
 ```
 
 - Os tipos possíveis são: `dbl` (números), `chr` (strings), `dfc` (_data frame
@@ -216,7 +213,7 @@ map_chr(vec, soma_dez)
 ```
 
 ```
-#&gt; [1] "11.000000" "12.000000" "13.000000" "14.000000" "15.000000"
+#&gt; [1] "15.000000" "16.000000" "17.000000" "18.000000" "19.000000"
 ```
 
 ---
@@ -234,7 +231,7 @@ map_dbl(vec, soma_n, n = 3)
 ```
 
 ```
-#&gt; [1] 4 5 6 7 8
+#&gt; [1]  8  9 10 11 12
 ```
 
 - Para simplificar funções curtas, podemos usar uma notação **lambda** na qual
@@ -243,11 +240,11 @@ map_dbl(vec, soma_n, n = 3)
 
 
 ```r
-map_dbl(vec, ~3+.x)
+map_dbl(vec, ~ 3 + .x)
 ```
 
 ```
-#&gt; [1] 4 5 6 7 8
+#&gt; [1]  8  9 10 11 12
 ```
 
 ---
@@ -298,14 +295,14 @@ imdb %&gt;%
 
 ```
 #&gt; # A tibble: 3,713 × 3
-#&gt;   titulo                                   generos                 split_generos
-#&gt;   &lt;chr&gt;                                    &lt;chr&gt;                   &lt;list&gt;       
-#&gt; 1 Avatar                                   Action|Adventure|Fanta… &lt;chr [4]&gt;    
-#&gt; 2 Pirates of the Caribbean: At World's End Action|Adventure|Fanta… &lt;chr [3]&gt;    
-#&gt; 3 The Dark Knight Rises                    Action|Thriller         &lt;chr [2]&gt;    
-#&gt; 4 John Carter                              Action|Adventure|Sci-Fi &lt;chr [3]&gt;    
-#&gt; 5 Spider-Man 3                             Action|Adventure|Roman… &lt;chr [3]&gt;    
-#&gt; # … with 3,708 more rows
+#&gt;   titulo                                   generos                       split…¹
+#&gt;   &lt;chr&gt;                                    &lt;chr&gt;                         &lt;list&gt; 
+#&gt; 1 Avatar                                   Action|Adventure|Fantasy|Sci… &lt;chr&gt;  
+#&gt; 2 Pirates of the Caribbean: At World's End Action|Adventure|Fantasy      &lt;chr&gt;  
+#&gt; 3 The Dark Knight Rises                    Action|Thriller               &lt;chr&gt;  
+#&gt; 4 John Carter                              Action|Adventure|Sci-Fi       &lt;chr&gt;  
+#&gt; 5 Spider-Man 3                             Action|Adventure|Romance      &lt;chr&gt;  
+#&gt; # … with 3,708 more rows, and abbreviated variable name ¹​split_generos
 ```
 
 ---
@@ -403,6 +400,8 @@ mais bonito! Para entender melhor como esse pacote incrível funciona, veja mais
 nos links abaixo:
 
 - [A Magia de Purrr](https://lente.dev/posts/magica-purrr/)
+
+- [Webinar de purrr](https://www.youtube.com/watch?v=eHbFkEyN3OU)
 
 - [Webinar de purrr avançado](https://www.youtube.com/watch?v=vb1lD9_AFcU)
 

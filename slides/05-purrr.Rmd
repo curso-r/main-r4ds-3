@@ -14,7 +14,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-library(magrittr)
+library(magrittr) 
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, comment = "#>")
 options(dplyr.print_min = 5, dplyr.print_max = 5)
 ```

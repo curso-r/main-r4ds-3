@@ -4,17 +4,22 @@
     <title>R para Ciência de Dados 2</title>
     <meta charset="utf-8" />
     <meta name="author" content="" />
-    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.17/header-attrs.js"></script>
     <link rel="stylesheet" href="css/xaringan-themer.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
+.title[
 # R para Ciência de Dados 2
+]
+.subtitle[
 ## NSE
+]
+.author[
 ### <img src = 'https://d33wubrfki0l68.cloudfront.net/9b0699f18268059bdd2e5c21538a29eade7cbd2b/67e5c/img/logo/cursor1-5.png' width = '30%'>
-### Novembro de 2021
+]
 
 ---
 
@@ -134,9 +139,10 @@ starwars %&gt;% filter_na(col = birth_year) %&gt;% nrow()
 ```
 
 ```
-#&gt; Error: Problem with `filter()` input `..1`.
-#&gt; ℹ Input `..1` is `is.na(col)`.
-#&gt; x object 'birth_year' not found
+#&gt; Error in `filter()`:
+#&gt; ! Problem while computing `..1 = is.na(col)`.
+#&gt; Caused by error in `mask$eval_all_filter()`:
+#&gt; ! object 'birth_year' not found
 ```
 
 ---
@@ -352,6 +358,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable

@@ -1,7 +1,7 @@
 ---
 output: github_document
 params:
-  curso: r4ds-2
+  curso: r4ds-3
 ---
 
 # R para Ciência de Dados III
@@ -24,8 +24,8 @@ Inscreva-se no curso: https://loja.curso-r.com/
 
 ```{r, echo = FALSE}
 params$curso |>
-  stringr::str_c('org%3Acurso-r+in%3Aname+"', ... = _, '"&per_page=100') |>
-  gh::gh("/search/repositories?q={query}", query = _) |>
+  stringr::str_c('org:curso-r in:name "', ... = _, '"') |>
+  gh::gh("/search/repositories?q={query}", query = _, per_page = 100) |>
   purrr::pluck("items") |>
   purrr::map_chr("name") |>
   tibble::tibble(repo = _) |>
@@ -54,8 +54,8 @@ params$curso |>
 6 aulas (18h) com os temas:
 
   - Organização de projetos
-  - Git/GitHub
   - Faxina de dados
   - Conexão com bancos de dados
+  - Git e GitHub
   - Pacotes
-  - GitHub Actions
+  - Integração contínua

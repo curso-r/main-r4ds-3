@@ -17,22 +17,16 @@ abaixo**.
 
 | Turma            | Material                                                                   | GitHub                                                                       |
 |:-----------------|:---------------------------------------------------------------------------|:-----------------------------------------------------------------------------|
-| Outubro de 2022  | [curso-r.github.io/202210-r4ds-2](https://curso-r.github.io/202210-r4ds-2) | [github.com/curso-r/202210-r4ds-2](https://github.com/curso-r/202210-r4ds-2) |
-| Julho de 2022    | [curso-r.github.io/202207-r4ds-2](https://curso-r.github.io/202207-r4ds-2) | [github.com/curso-r/202207-r4ds-2](https://github.com/curso-r/202207-r4ds-2) |
-| Abril de 2022    | [curso-r.github.io/202204-r4ds-2](https://curso-r.github.io/202204-r4ds-2) | [github.com/curso-r/202204-r4ds-2](https://github.com/curso-r/202204-r4ds-2) |
-| Novembro de 2021 | [curso-r.github.io/202111-r4ds-2](https://curso-r.github.io/202111-r4ds-2) | [github.com/curso-r/202111-r4ds-2](https://github.com/curso-r/202111-r4ds-2) |
-| Agosto de 2021   | [curso-r.github.io/202108-r4ds-2](https://curso-r.github.io/202108-r4ds-2) | [github.com/curso-r/202108-r4ds-2](https://github.com/curso-r/202108-r4ds-2) |
-| Abril de 2021    | [curso-r.github.io/202104-r4ds-2](https://curso-r.github.io/202104-r4ds-2) | [github.com/curso-r/202104-r4ds-2](https://github.com/curso-r/202104-r4ds-2) |
-| Agosto de 2020   | [curso-r.github.io/202008-r4ds-2](https://curso-r.github.io/202008-r4ds-2) | [github.com/curso-r/202008-r4ds-2](https://github.com/curso-r/202008-r4ds-2) |
-| Abril de 2020    | [curso-r.github.io/202004-r4ds-2](https://curso-r.github.io/202004-r4ds-2) | [github.com/curso-r/202004-r4ds-2](https://github.com/curso-r/202004-r4ds-2) |
+| Novembro de 2023 | [curso-r.github.io/202311-r4ds-3](https://curso-r.github.io/202311-r4ds-3) | [github.com/curso-r/202311-r4ds-3](https://github.com/curso-r/202311-r4ds-3) |
+| Maio de 2023     | [curso-r.github.io/202305-r4ds-3](https://curso-r.github.io/202305-r4ds-3) | [github.com/curso-r/202305-r4ds-3](https://github.com/curso-r/202305-r4ds-3) |
 
 ## Plano de aula
 
 6 aulas (18h) com os temas:
 
 - Organização de projetos
-- Git/GitHub
 - Faxina de dados
 - Conexão com bancos de dados
+- Git e GitHub
 - Pacotes
-- GitHub Actions
+- Integração contínua

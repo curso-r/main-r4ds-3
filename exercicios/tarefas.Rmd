@@ -1,5 +1,10 @@
 # Aula 1 -----------------------
 
+Crie dois projetos no seu computador. Alterne entre eles usando o seletor do
+RStudio. Teste como funcionam os caminhos absolutos e relativos dentro dos
+projetos (dica: abra um parêntese no RStudio e aperte TAB para ver como ele nos
+ajuda a escrever caminhos relativos).
+
 # Aula 2 -----------------------
 
 # Aula 3 -----------------------

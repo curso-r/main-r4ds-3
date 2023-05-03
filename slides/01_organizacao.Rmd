@@ -167,7 +167,7 @@ no geral ele se refere a todos os princípios que guiam o ato de programar.
 
 Por exemplo, vamos falar sobre organização de arquivos e quais são as melhores
 maneiras de nomeá-los. Também vamos falar sobre projetos, uma maneira eficiente
-e inteligente de agrupar todos recursos relacionados. Por fim vamos discutir
+e inteligente de agrupar vários recursos relacionados. Por fim vamos discutir
 estilística, ou seja, dicas que podem tornar os nossos programas mais legíveis
 para nós mesmos e para qualquer outra pessoa com quem estivermos trabalhando.
 
@@ -329,7 +329,7 @@ README.md
 ```
 
 Usar caminhos relativos é vantajoso porque eles são curtos e funcionam mesmo que
-a o diretório de trabalho seja transferido para outro computador. Ainda vamos
+o diretório de trabalho seja transferido para outro computador. Ainda vamos
 falar muito sobre caminhos, mas antes precisamos aprender um jeito simples de
 configurar nosso diretório de trabalho para usar caminhos relativos.
 

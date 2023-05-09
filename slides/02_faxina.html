@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R para Ciência de Dados 3</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link rel="stylesheet" href="css/xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# R para Ciência de Dados 3
+]
+.subtitle[
+## Faxina de dados
+]
+.author[
+### <img src = 'https://d33wubrfki0l68.cloudfront.net/9b0699f18268059bdd2e5c21538a29eade7cbd2b/67e5c/img/logo/cursor1-5.png' width = '30%'>
+]
+
+---
+
+
+
+
+class: middle, center
+# Iniciar gravação!
+
+---
+class: middle, center, inverse
+# Importação
+
+---
+# Motivação
+
+Já falamos um pouco sobre importação de dados no _R para Ciência de Dados I_,
+mas agora precisamos nos aprofundar nesse tema. A realidade é que a importação é
+provavelmente o passo mais importante do ciclo da ciência de dados e os
+problemas que encontrarmos aqui podem ditar o futuro de uma análise.
+
+Hoje vamos entender exatamente o que é um arquivo separado por delimitadores e a
+diferença entre seus principais tipos. Vamos aprender todos os detalhes sobre a
+leitura de arquivos Excel, incluindo os problemas que muitas vezes encontramos
+pelo caminho. Também vamos falar sobre o Google Sheets e como ele pode ser um
+jeito interessante de armazenar dados de forma persistente.
+
+No limite, queremos desmistificar a importação de dados e entender como podemos
+garantir que nenhuma informação seja perdida durante esse processo.
+
+A maior parte da importação será feita pelo pacote readr, mas também vamos
+precisar do readxl e do googlesheets4. Se você tem o tidyverse instalados, todos
+eles já devem estar no seu computador.
+
+---
+# Projetos
+
+Antes de começar o conteúdo, vamos criar um Rproj para guardar todos os dados e
+scripts da aula. Isso já serve de prática para o mundo real, onde vamos querer
+fazer isso de todo modo.
+
+1. Criar um Rproj para esta aula (ou para o curso todo, o que você preferir).
+
+2. Criar uma pasta `R` e uma pasta `data-raw` dentro do projeto. A primeira vai
+ficar com todos os scripts e a segunda com todos os dados.
+
+3. Baixar os dados que vamos utilizar hoje a partir do link:
+https://github.com/curso-r/main-r4ds-3/raw/main/dados/02_faxina.zip
+
+4. Descomprimir os dados e copiar todos os arquivos para dentro da pasta
+`data-raw`. Garantir que os arquivos estão direto na pasta, não em uma
+sub-pasta.
+
+5. A partir de agora, todos os códigos que vamos mostrar hoje devem funcionar
+dentro do Rproj!
+
+---
+class: center
+
+&lt;img src="img/02_faxina/rproj.png" width="92%" style="display: block; margin: auto;" /&gt;
+
+[Imagem do _R for Data Science_ (2e)](https://r4ds.hadley.nz/)
+
+---
+# Dados tabulares
+
+Vamos começar com o tipo mais comum de dado tabulares (também chamados de dados
+retangulares): valores separados por delimitadores ou **DSV** na sigla em
+inglês.
+
+DSVs são arquivos de texto normais que podem ser criados com absolutamente
+qualquer programa de edição. Praticamente todo programa que lida com dados (do R
+ao Excel) também é capaz de importar e exportar tabelas em algum tipo de DSV,
+então esta é uma ótima escolha para quem quer compartilhar dados de forma
+genérica.
+
+Um arquivo DSV costuma começar com uma linha representando os nomes das colunas,
+seguida de várias linhas com os dados. Independentemente do tipo de DSV, os
+valores de cada linha são separados por um delimitador específico; é este
+delimitador inclusive que determina o tipo de DSV com o qual estamos lidando.
+
+O DSV mais comum é o CSV, que separa os valores com vírgulas. No Brasil e em
+outros países que separam números decimais com vírgulas, CSVs
+(contraintuitivamente) costumam separar os valores com pontos e vírgulas.
+
+---
+# Dados tabulares: CSV
+
+CSV é a abreviação de valores separados pro vírgulas em inglês. Como o nome
+sugere, esse é um tipo de dado tabular que usa a vírgula como delimitador.
+
+```txt
+id,nome,racao_favorita,refeicoes,idade
+1,Bacon,Bovina,Almoço,5.5
+2,Dexter,,Almoço e janta,2
+3,Zip,De frango,"Café, almoço e Janta",1.5
+```
+
+É um pouco difícil de ler os dados, mas alguns detalhes saltam aos olhos:
+
+- Não há nenhum indicador do tipo de cada coluna.
+
+- Casas decimais precisam ser separadas com pontos (formato inglês).
+
+- Textos com vírgulas sempre precisam ser envoltos por aspas, senão eles vão ser
+lidos como colunas distintas.
+
+---
+# Dados tabulares: leitura
+
+Para ler arquivos CSV padrões, vamos usar a função `read_csv()`. Como fica claro
+pelo exemplo abaixo, ela é capaz de inferir os tipos das colunas sem nenhum
+problema.
+
+
+```r
+library(tidyverse) # Carrega o readr
+read_csv("data-raw/racoes.csv")
+```
+
+
+```
+#&gt; # A tibble: 3 × 5
+#&gt;      id nome   racao_favorita refeicoes            idade
+#&gt;   &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;                &lt;dbl&gt;
+#&gt; 1     1 Bacon  Bovina         Almoço                 5.5
+#&gt; 2     2 Dexter &lt;NA&gt;           Almoço e janta         2  
+#&gt; 3     3 Zip    De frango      Café, almoço e Janta   1.5
+```
+
+Note que o par de vírgulas seguidas do arquivo se transformou em um `NA` no data
+frame importado. É assim que valores omissos são denotados em dados tabulares.
+
+---
+# Dados tabulares: CSV 2
+
+O CSV 2 é a versão do CSV usada por países que não adotam o formato numérico
+inglês. Neste caso, casas decimais precisam ser separadas com vírgulas e só
+é necessário recorrer às aspas se houver um ponto e vírgula na string.
+
+```txt
+id;nome;racao_favorita;refeicoes;idade
+1;Bacon;Bovina;Almoço;5,5
+2;Dexter;;Almoço e janta;2
+3;Zip;De frango;Café, almoço e Janta;1,5
+```
+
+A leitura de uma base CSV 2 é feita de maneira similar a uma base CSV, mas com a
+função `read_csv2()`. É importante notar que o R não detecta sozinho se uma
+tabela é CSV ou CSV 2, então precisamos fazer isso por ele.
+
+
+```r
+# Saída idêntica à do slide anterior
+read_csv2("data-raw/racoes2.csv")
+```
+
+---
+# Argumentos
+
+As funções de leitura do readr têm vários argumentos que podem nos ajudar com
+dados mal formatados ou com outros problemas mais sérios. Os principais
+argumentos aos quais temos acesso são os seguintes:
+
+- `col_names`: indica se a primeira linha da tabela contém ou não o nome das
+colunas. Também pode ser utilizado para (re)nomear colunas.
+
+- `col_types`: caso alguma coluna seja importada com o tipo errado, esse
+argumento para especificar a classe das colunas. Vamos falar mais sobre esse
+argumento a seguir.
+
+- `locale`: útil para tratar problemas relacionados à codificação dos dados.
+Vamos falar mais sobre esse argumento a seguir.
+
+- `na`: indica quais strings deverão ser consideradas `NA` na hora da
+importação.
+
+- `skip`: pula linhas no começo do arquivo antes de iniciar a importação.
+
+---
+# Argumentos: colunas
+
+O argumento `col_types` é utilizado para forçar tipos de coluna caso a leitura
+esteja tendo dificuldades. Para saber mais sobre as funções `col_*()`, consulte
+a documentação com o comando `?cols()`.
+
+```txt
+id,nome,sexo,nasc,especie
+1,Dexter,M,2021-03-20,Cão
+2,Zip,M,2021-11-20,Cão
+```
+
+
+```r
+"data-raw/caes.csv" |&gt;
+  read_csv(col_types = list(sexo = col_factor()))
+```
+
+
+```
+#&gt; # A tibble: 2 × 5
+#&gt;      id nome   sexo  nasc       especie
+#&gt;   &lt;dbl&gt; &lt;chr&gt;  &lt;fct&gt; &lt;date&gt;     &lt;chr&gt;  
+#&gt; 1     1 Dexter M     2021-03-20 Cão    
+#&gt; 2     2 Zip    M     2021-11-20 Cão
+```
+
+---
+# Argumentos: locale
+
+Já falamos bastante sobre locale no _R para Ciência de Dados 2_, mas esse tipo
+de problema retorna fortalecido durante a importação de dados. A função
+`locale()` nos ajuda a determinar os idiomas ou formatos da tabela:
+
+```txt
+id,nome,sexo,nasc,especie
+1,Dexter,M,20/03/2021,Cão
+2,Zip,M,20/11/2021,Cão
+```
+
+
+```r
+"data-raw/caes_loc.csv" |&gt;
+  read_csv(locale = locale(date_format = "%d/%m/%Y"))
+```
+
+
+```
+#&gt; # A tibble: 2 × 5
+#&gt;      id nome   sexo  nasc       especie
+#&gt;   &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt; &lt;date&gt;     &lt;chr&gt;  
+#&gt; 1     1 Dexter M     2021-03-20 Cão    
+#&gt; 2     2 Zip    M     2021-11-20 Cão
+```
+
+---
+# Argumentos: codificação
+
+Também já falamos sobre _encoding_ antes e igualmente podemos ter problemas com
+isso aqui. O erro mais frequente ocorre na leitura de CSVs exportados pelo
+Excel: normalmente o _encoding_ deles são `latin1` ou `windows-1252`.
+
+```txt
+id,nome,sexo,nasc,especie
+1,Dexter,M,2021-03-20,C�o
+2,Zip,M,2021-11-20,C�o
+```
+
+
+```r
+"data-raw/caes_xl.csv" |&gt;
+  read_csv(locale = locale(encoding = "windows-1252"))
+```
+
+
+```
+#&gt; # A tibble: 2 × 5
+#&gt;      id nome   sexo  nasc       especie
+#&gt;   &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt; &lt;date&gt;     &lt;chr&gt;  
+#&gt; 1     1 Dexter M     2021-03-20 Cão    
+#&gt; 2     2 Zip    M     2021-11-20 Cão
+```
+
+---
+# Excel
+
+Já vimos como importar tabelas CSV exportadas pelo Excel, mas também podemos ler
+planilhas Excel diretamente com a função `read_excel()` do pacote readxl!
+
+A parte boa de ler dados diretamente do Excel é que não normalmente não temos
+problemas de locale e codificação porque arquivos Excel já vêm embutidos com
+esses metadados. A parte ruim é que normalmente criamos planilhas com muitos
+recursos visuais que atrapalham a importação: cabeçalhos, formatações de
+células, múltiplas tabelas por planilha, etc.
+
+Felizmente, a `read_excel()` funciona de maneira similar às outras `read_*()` e
+tem 2 novos argumentos que tentam tirar esses recursos visuais da frente:
+
+- `sheet`: indica o número ou nome da planilha que deve ser lida.
+
+- `range`: determina o retângulo exato que deve ser importado.
+
+Para limpar os nomes de colunas, também temos a `janitor::clean_names()`.
+
+---
+class: middle, center
+
+&lt;img src="img/02_faxina/racoes.png" width="2667" style="display: block; margin: auto;" /&gt;
+
+---
+# Excel: exemplo
+
+
+```r
+library(readxl)
+"data-raw/racoes.xlsx" |&gt;
+  read_excel(
+    sheet = 1,           # Primeira planilha
+    range = "A3:E6",     # Retângulo a ser lido
+    na = c("", "-")      # Valores NA
+  ) |&gt;
+  janitor::clean_names() # Limpar nomes
+```
+
+
+```
+#&gt; # A tibble: 3 × 5
+#&gt;      id nome   racao_favorita refeicoes            idade
+#&gt;   &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;                &lt;dbl&gt;
+#&gt; 1     1 Bacon  Bovina         Almoço                 5.5
+#&gt; 2     2 Dexter &lt;NA&gt;           Almoço e janta         2  
+#&gt; 3     3 Zip    De frango      Café, almoço e janta   1.5
+```
+
+---
+# Google Sheets
+
+Ler tabelas do Google Sheets é quase igual a ler tabelas do Excel. Neste caso
+vamos usar a função `read_sheet()` do pacote googlesheets4, que também faz parte
+do tidyverse.
+
+O primeiro ponto de diferença é na autenticação, necessária para que o
+googlesheets4 funcione. Precisamos executar `gs4_auth()` pelo menos uma vez por
+computador e autorizar o acesso do tidyverse à nossa conta; se não fizermos
+isso, o pacote pode reclamar e te obrigar a fazer a autenticação em outro
+momento.
+
+
+```r
+library(googlesheets4)
+gs4_auth("clente@curso-r.com")
+```
+
+Fora a autenticação, a segunda diferença entre o Excel e o Google Sheets é que
+não passamos um caminho de arquivo para a `read_sheet()`, mas sim um URL ou o ID
+de uma planilha. Adicionalmente, se não tivermos acesso devido a ela, ocorrerá
+um erro na hora da leitura.
+
+---
+class: middle, center
+
+&lt;img src="img/02_faxina/racoes_sheets.png" width="6827" style="display: block; margin: auto;" /&gt;
+
+---
+# Google Sheets: exemplo
+
+
+```r
+"1p5tYOKzNfFf6ZlxDFwm0T5VtwnGSU565H3rHYWvi37M" |&gt;
+  read_sheet(
+    sheet = 1,           # Primeira planilha
+    range = "A3:E6",     # Retângulo a ser lido
+    na = c("", "-")      # Valores NA
+  )
+```
+
+```
+#&gt; ✔ Reading from "racoes".
+```
+
+```
+#&gt; ✔ Range ''Sheet1'!A3:E6'.
+```
+
+```
+#&gt; # A tibble: 3 × 5
+#&gt;      id nome   racao_favorita refeicoes            idade
+#&gt;   &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;                &lt;dbl&gt;
+#&gt; 1     1 Bacon  Bovina         Almoço                 5.5
+#&gt; 2     2 Dexter &lt;NA&gt;           Almoço e janta         2  
+#&gt; 3     3 Zip    De frango      Café, almoço e janta   1.5
+```
+
+---
+# Outros formatos
+
+Existem inúmeros outros formatos de dados que podemos encontrar no mundo real. O
+tidyverse também nos disponibiliza outros pacotes e funções que podem ser úteis
+nessas situações:
+
+- Pacote haven: arquivos SPSS, Stata e SAS
+
+- Pacote DBI: bases de dados (mais sobre isso na aula que vem)
+
+- Pacote jsonlite: arquivos JSON
+
+- Pacote xml2: arquivos HTML (XML no geral)
+
+- Pacote httr: APIs da web e raspagem de dados
+
+- `readr::read_lines()`: dados em texto
+
+---
+class: middle, center, inverse
+# Valores omissos
+
+---
+# Motivação
+
+Agora que já sabemos todas as nuances da importação de dados para dentro do R,
+podemos continuar nossa aventura da faxina de dados.
+
+Nesta seção vamos falar sobre valores omissos, mais conhecidos como `NA`s. Eles
+podem representar diversas coisas e muitas vezes não prestamos atenção a esses
+detalhes; não é incomum ver pessoas que "tratam" `NA`s removendo as linhas com
+valores omissos sem pensar duas vezes.
+
+No fundo, um `NA` pode corresponder a um dado que alguém esqueceu de registrar,
+a uma informação que era impossível coletar ou a uma medida que não se sabia
+fazer. Esses `NA`s podem ocorrer aleatoriamente ou não, carregando consigo dados
+preciosos sobre os dados e a metodologia por trás deles.
+
+Sendo assim, precisamos tomar muito cuidado com os valores omissos. Hoje vamos
+entender melhor o que são `NA`s **explícitos** e **implícitos**, assim como
+quais são as funções do R para lidar com eles da melhor forma possível.
+
+---
+class: center, bottom
+
+&lt;img src="img/02_faxina/na.jpg" style="display: block; margin: auto;" /&gt;
+
+[Ilustração por @allison_horst](https://twitter.com/allison_horst)
+
+---
+# NAs explícitos
+
+Como o nome sugere, `NA`s explícitos podem ser observados diretamente na forma
+de `NA`s no data frame. Eles normalmente aparecem em tabelas que já foram
+preenchidas no formato tidy ou que foram convertidas para este formato. Neste
+cenário, tratar um `NA` significa removê-lo da maneira menos disruptiva
+possível.
+
+
+```r
+(treinos &lt;- read_csv("data-raw/treinos.csv"))
+```
+
+
+```
+#&gt; # A tibble: 6 × 4
+#&gt;   nome   data       nota_a nota_b
+#&gt;   &lt;chr&gt;  &lt;date&gt;      &lt;dbl&gt;  &lt;dbl&gt;
+#&gt; 1 Bacon  2023-02-01     10      3
+#&gt; 2 &lt;NA&gt;   2023-03-01      9     NA
+#&gt; 3 Dexter 2023-02-01      4      9
+#&gt; 4 &lt;NA&gt;   2023-03-01      6      9
+#&gt; 5 Zip    2023-02-01      8      2
+#&gt; 6 &lt;NA&gt;   2023-03-01     -1      4
+```
+
+---
+# fill()
+
+A função `fill()` do pacote tidyr é perfeita para remover `NA`s que significam
+"repetir o último valor". Ela substitui cada `NA` que ela encontrar com o valor
+mais próximo para cima ou para baixo (dependendo do argumento `.direction`).
+
+
+```r
+treinos |&gt;
+  fill(nome)
+```
+
+```
+#&gt; # A tibble: 6 × 4
+#&gt;   nome   data       nota_a nota_b
+#&gt;   &lt;chr&gt;  &lt;date&gt;      &lt;dbl&gt;  &lt;dbl&gt;
+#&gt; 1 Bacon  2023-02-01     10      3
+#&gt; 2 Bacon  2023-03-01      9     NA
+#&gt; 3 Dexter 2023-02-01      4      9
+#&gt; 4 Dexter 2023-03-01      6      9
+#&gt; 5 Zip    2023-02-01      8      2
+#&gt; 6 Zip    2023-03-01     -1      4
+```
+
+---
+# na_if()
+
+A função `na_if()` do dplyr não remove `NA`s, mas ela os padroniza para que
+possamos tratá-los da forma correta. Podemos usá-la para transformar valores
+incongruentes (como notas negativas) em `NA`s verdadeiros.
+
+
+```r
+treinos |&gt;
+  mutate(nota_a = na_if(nota_a, -1))
+```
+
+```
+#&gt; # A tibble: 6 × 4
+#&gt;   nome   data       nota_a nota_b
+#&gt;   &lt;chr&gt;  &lt;date&gt;      &lt;dbl&gt;  &lt;dbl&gt;
+#&gt; 1 Bacon  2023-02-01     10      3
+#&gt; 2 &lt;NA&gt;   2023-03-01      9     NA
+#&gt; 3 Dexter 2023-02-01      4      9
+#&gt; 4 &lt;NA&gt;   2023-03-01      6      9
+#&gt; 5 Zip    2023-02-01      8      2
+#&gt; 6 &lt;NA&gt;   2023-03-01     NA      4
+```
+
+---
+# coalesce()
+
+A função `coalesce()` do dplyr substitui `NA`s por um valor preestabelecido.
+Este valor pode ser uma outra coluna (usar `nota_a` para cobrir o `NA` na
+`nota_b`) ou uma sumarização da própria coluna (usar a média da `nota_b` para
+cobrir o seu `NA`).
+
+
+```r
+treinos |&gt;
+  mutate(nota_b = coalesce(nota_b, mean(nota_b, na.rm = TRUE)))
+```
+
+```
+#&gt; # A tibble: 6 × 4
+#&gt;   nome   data       nota_a nota_b
+#&gt;   &lt;chr&gt;  &lt;date&gt;      &lt;dbl&gt;  &lt;dbl&gt;
+#&gt; 1 Bacon  2023-02-01     10    3  
+#&gt; 2 &lt;NA&gt;   2023-03-01      9    5.4
+#&gt; 3 Dexter 2023-02-01      4    9  
+#&gt; 4 &lt;NA&gt;   2023-03-01      6    9  
+#&gt; 5 Zip    2023-02-01      8    2  
+#&gt; 6 &lt;NA&gt;   2023-03-01     -1    4
+```
+
+---
+# NAs implícitos
+
+`NA`s implícitos não estão registrados nos data frames e precisam ser
+"encontrados" por quem está analisando a base. Na maioria das vezes eles são
+fruto de dados registrados a mão, pois raramente queremos perder tempo
+cadastrando informações vazias. Para torná-los explícitos, precisamos utilizar
+algum tipo de transformação como pivotagem, junção, etc.
+
+
+```r
+(medias &lt;- read_csv("data-raw/medias.csv"))
+```
+
+
+```
+#&gt; # A tibble: 5 × 3
+#&gt;     ano semestre media
+#&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1  2020        1   6  
+#&gt; 2  2020        2   6.3
+#&gt; 3  2021        1   6.5
+#&gt; 4  2021        2   6.9
+#&gt; 5  2022        2   7.5
+```
+
+---
+# Pivotagem
+
+Dependendo de como a base tiver sido registrada, um `pivot_wider()` ou um
+`pivot_longer()` pode revelar `NA`s implícitos. A base resultante não
+necessariamente será tidy nem terá nomes razoáveis de colunas, então precisamos
+prestar atenção do data frame de saída.
+
+
+```r
+medias |&gt;
+  pivot_wider(
+    names_from = ano,
+    values_from = media
+  )
+```
+
+```
+#&gt; # A tibble: 2 × 4
+#&gt;   semestre `2020` `2021` `2022`
+#&gt;      &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+#&gt; 1        1    6      6.5   NA  
+#&gt; 2        2    6.3    6.9    7.5
+```
+
+---
+# complete()
+
+Ao invés de pivotar uma tabela, podemos utilizar a `complete()` do pacote tidyr.
+Ela cruza as informações de duas ou mais colunas e cria um `NA` para todo
+cruzamento que ainda não tiver representante na tabela.
+
+
+```r
+medias |&gt;
+  complete(ano, semestre)
+```
+
+```
+#&gt; # A tibble: 6 × 3
+#&gt;     ano semestre media
+#&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1  2020        1   6  
+#&gt; 2  2020        2   6.3
+#&gt; 3  2021        1   6.5
+#&gt; 4  2021        2   6.9
+#&gt; 5  2022        1  NA  
+#&gt; 6  2022        2   7.5
+```
+
+---
+# Junção
+
+Uma junção (normalmente chamada de _join_) é o processo de combinar os dados de
+duas tabelas em uma só. Vamos falar mais sobre isso na aula que vem, mas é muito
+comum que um join revele `NA`s implícitos.
+
+
+
+
+```r
+medias |&gt;
+  full_join(profs, join_by(ano, semestre)) # Tabela com os profs
+```
+
+```
+#&gt; # A tibble: 6 × 4
+#&gt;     ano semestre media prof 
+#&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;
+#&gt; 1  2020        1   6   Caio 
+#&gt; 2  2020        2   6.3 Caio 
+#&gt; 3  2021        1   6.5 Beto 
+#&gt; 4  2021        2   6.9 Ana  
+#&gt; 5  2022        2   7.5 Ana  
+#&gt; 6  2022        1  NA   Ana
+```
+
+---
+# Fatores
+
+Como comentado no _R para Ciência de Dados II_, variáveis categóricas conseguem
+conter níveis que não possuem nenhum representante na tabela; isso é comum
+quando tiramos os `NA`s de uma categoria com poucos elementos. Neste caso,
+podemos usar a função `count()` do pacote dplyr com `.drop = FALSE` para revelar
+os níveis com 0 representantes.
+
+
+```r
+"data-raw/caes.csv" |&gt;
+  read_csv() |&gt;
+  mutate(especie = fct(especie, c("Cão", "Gato"))) |&gt;
+  count(especie, .drop = FALSE)
+```
+
+
+```
+#&gt; # A tibble: 2 × 2
+#&gt;   especie     n
+#&gt;   &lt;fct&gt;   &lt;int&gt;
+#&gt; 1 Cão         2
+#&gt; 2 Gato        0
+```
+
+---
+# Gráficos
+
+Gráficos também são uma maneira de exibir `NA`s implícitos se estivermos na
+situação descrita no slide anterior. No caso de a coluna ser um fator com níveis
+sem representantes, podemos utilizar a mesma abordagem e passar o argumento
+`drop = FALSE` para a `scale_x_discrete()`; se não fizermos isso, o gráfico
+omitirá a categoria varia, dando a impressão de que ela não existe.
+
+Este argumento está disponível em todas as escalas discretas do ggplot2, então
+ele não se aplica somente a essa função.
+
+
+```r
+# Resultado no próximo slide
+"data-raw/caes.csv" |&gt;
+  read_csv() |&gt;
+  mutate(especie = fct(especie, c("Cão", "Gato"))) |&gt;
+  ggplot(aes(x = especie)) +
+  geom_bar() +
+  scale_x_discrete(drop = FALSE)
+```
+
+---
+class: middle, center
+
+&lt;img src="02_faxina_files/figure-html/unnamed-chunk-31-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle, center, inverse
+# Fim
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -7,6 +7,14 @@ ajuda a escrever caminhos relativos).
 
 # Aula 2 -----------------------
 
+Resolver os exercícios dos capítulos 08, 19 e 21 do _R for Data Science (2e)_:
+
+- Data import: https://r4ds.hadley.nz/data-import.html
+
+- Missing values: https://r4ds.hadley.nz/missing-values.html
+
+- Spreadsheets: https://r4ds.hadley.nz/spreadsheets.html
+
 # Aula 3 -----------------------
 
 # Aula 4 -----------------------

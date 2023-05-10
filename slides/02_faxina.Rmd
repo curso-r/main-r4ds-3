@@ -110,7 +110,7 @@ sugere, esse é um tipo de dado tabular que usa a vírgula como delimitador.
 id,nome,racao_favorita,refeicoes,idade
 1,Bacon,Bovina,Almoço,5.5
 2,Dexter,,Almoço e janta,2
-3,Zip,De frango,"Café, almoço e Janta",1.5
+3,Zip,De frango,"Café, almoço e janta",1.5
 ```
 
 É um pouco difícil de ler os dados, mas alguns detalhes saltam aos olhos:
@@ -153,7 +153,7 @@ inglês. Neste caso, casas decimais precisam ser separadas com vírgulas e só
 id;nome;racao_favorita;refeicoes;idade
 1;Bacon;Bovina;Almoço;5,5
 2;Dexter;;Almoço e janta;2
-3;Zip;De frango;Café, almoço e Janta;1,5
+3;Zip;De frango;Café, almoço e janta;1,5
 ```
 
 A leitura de uma base CSV 2 é feita de maneira similar a uma base CSV, mas com a
@@ -237,8 +237,8 @@ id,nome,sexo,nasc,especie
 # Argumentos: codificação
 
 Também já falamos sobre _encoding_ antes e igualmente podemos ter problemas com
-isso aqui. O erro mais frequente ocorre na leitura de CSVs exportados pelo
-Excel: normalmente o _encoding_ deles são `latin1` ou `windows-1252`.
+isso aqui. O erro mais comum é nos CSVs exportados pelo Excel: normalmente o
+_encoding_ deles são `latin1` ou `windows-1252` (ver `?guess_encoding()`).
 
 ```txt
 id,nome,sexo,nasc,especie
@@ -327,6 +327,10 @@ library(googlesheets4)
 gs4_auth("clente@curso-r.com")
 ```
 
+```{r, echo = FALSE}
+library(googlesheets4)
+```
+
 Fora a autenticação, a segunda diferença entre o Excel e o Google Sheets é que
 não passamos um caminho de arquivo para a `read_sheet()`, mas sim um URL ou o ID
 de uma planilha. Adicionalmente, se não tivermos acesso devido a ela, ocorrerá
@@ -388,7 +392,7 @@ valores omissos sem pensar duas vezes.
 No fundo, um `NA` pode corresponder a um dado que alguém esqueceu de registrar,
 a uma informação que era impossível coletar ou a uma medida que não se sabia
 fazer. Esses `NA`s podem ocorrer aleatoriamente ou não, carregando consigo dados
-preciosos sobre os dados e a metodologia por trás deles.
+preciosos sobre a base e a metodologia por trás dela.
 
 Sendo assim, precisamos tomar muito cuidado com os valores omissos. Hoje vamos
 entender melhor o que são `NA`s **explícitos** e **implícitos**, assim como
@@ -406,11 +410,10 @@ knitr::include_graphics("img/02_faxina/na.jpg")
 ---
 # NAs explícitos
 
-Como o nome sugere, `NA`s explícitos podem ser observados diretamente na forma
-de `NA`s no data frame. Eles normalmente aparecem em tabelas que já foram
-preenchidas no formato tidy ou que foram convertidas para este formato. Neste
-cenário, tratar um `NA` significa removê-lo da maneira menos disruptiva
-possível.
+Como o nome sugere, `NA`s explícitos podem ser observados diretamente no data
+frame. Eles normalmente aparecem em tabelas que já foram preenchidas no formato
+tidy ou que foram convertidas para este formato. Neste cenário, tratar um `NA`
+significa removê-lo da maneira menos disruptiva possível.
 
 ```{r, eval = FALSE}
 (treinos <- read_csv("data-raw/treinos.csv"))
@@ -523,36 +526,36 @@ medias |>
 ```
 
 ---
-# Fatores
+# Rodada bônus: fatores
 
 Como comentado no _R para Ciência de Dados II_, variáveis categóricas conseguem
 conter níveis que não possuem nenhum representante na tabela; isso é comum
-quando tiramos os `NA`s de uma categoria com poucos elementos. Neste caso,
-podemos usar a função `count()` do pacote dplyr com `.drop = FALSE` para revelar
-os níveis com 0 representantes.
+quando filtramos `NA`s e uma categoria tem poucos elementos. Neste caso, podemos
+usar a função `count()` do pacote dplyr com `.drop = FALSE` para revelar os
+níveis com 0 representantes.
 
 ```{r, eval = FALSE}
 "data-raw/caes.csv" |>
   read_csv() |>
-  mutate(especie = fct(especie, c("Cão", "Gato"))) |>
-  count(especie, .drop = FALSE)
+  mutate(sexo = fct(sexo, c("M", "F"))) |>
+  count(sexo, .drop = FALSE)
 ```
 
 ```{r, echo = FALSE}
 "../dados/02_faxina/caes.csv" |>
   read_csv(show_col_types = FALSE) |>
-  mutate(especie = fct(especie, c("Cão", "Gato"))) |>
-  count(especie, .drop = FALSE)
+  mutate(sexo = fct(sexo, c("M", "F"))) |>
+  count(sexo, .drop = FALSE)
 ```
 
 ---
-# Gráficos
+# Rodada bônus: gráficos
 
 Gráficos também são uma maneira de exibir `NA`s implícitos se estivermos na
 situação descrita no slide anterior. No caso de a coluna ser um fator com níveis
 sem representantes, podemos utilizar a mesma abordagem e passar o argumento
 `drop = FALSE` para a `scale_x_discrete()`; se não fizermos isso, o gráfico
-omitirá a categoria varia, dando a impressão de que ela não existe.
+omitirá a categoria vazia, dando a impressão de que ela não existe.
 
 Este argumento está disponível em todas as escalas discretas do ggplot2, então
 ele não se aplica somente a essa função.
@@ -561,8 +564,8 @@ ele não se aplica somente a essa função.
 # Resultado no próximo slide
 "data-raw/caes.csv" |>
   read_csv() |>
-  mutate(especie = fct(especie, c("Cão", "Gato"))) |>
-  ggplot(aes(x = especie)) +
+  mutate(sexo = fct(sexo, c("M", "F"))) |>
+  ggplot(aes(x = sexo)) +
   geom_bar() +
   scale_x_discrete(drop = FALSE)
 ```
@@ -574,8 +577,8 @@ class: middle, center
 # Resultado no próximo slide
 "../dados/02_faxina/caes.csv" |>
   read_csv(show_col_types = FALSE) |>
-  mutate(especie = fct(especie, c("Cão", "Gato"))) |>
-  ggplot(aes(x = especie)) +
+  mutate(sexo = fct(sexo, c("M", "F"))) |>
+  ggplot(aes(x = sexo)) +
   geom_bar() +
   scale_x_discrete(drop = FALSE) +
   theme(text = element_text(size = 20))

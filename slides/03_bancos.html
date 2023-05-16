@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R para Ciência de Dados 3</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link rel="stylesheet" href="css/xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# R para Ciência de Dados 3
+]
+.subtitle[
+## Bancos de dados
+]
+.author[
+### <img src = 'https://d33wubrfki0l68.cloudfront.net/9b0699f18268059bdd2e5c21538a29eade7cbd2b/67e5c/img/logo/cursor1-5.png' width = '30%'>
+]
+
+---
+
+
+
+
+class: middle, center
+# Iniciar gravação!
+
+---
+class: middle, center, inverse
+# DBI
+
+---
+# Motivação
+
+Bancos de dados (BDs) são programas capazes de armazenar e consultar grandes
+quantidades de dados. Diferentemente do R, que precisa ter seus dados carregados
+na memória RAM, a maioria dos BDs é capaz de operar em dados disponíveis apenas
+no disco rígido. Via de regra, um computador padrão tem muito mais disco do que
+RAM porque o primeiro é bem mais barato.
+
+Em virtude dessa diferença de preço (e vários outros motivos), é comum que as
+maiores bases sejam acessíveis apenas via um BD. Cada empresa costuma ter seu
+próprio servidor com um sistema de gerenciamento de bancos de dados (SGBD),
+assim qualquer analista pode facilmente acessar as bases necessárias para seus
+projetos. O SQL Server, da Microsoft, é um dos SGBDs mais comuns no mercado.
+
+O problema é que esses SGBDs são otimizados para coletar dados, não analisá-los.
+A linguagem básica de qualquer SGBD é o SQL, que infelizmente é muito mais
+complexo e confuso do que a sintaxe do tidyverse à qual nos acostumamos. Vamos
+falar mais sobre SQL depois, mas por enquanto gostaríamos de evitar aprender
+essa linguagem o máximo possível. Será que existe uma solução para o nosso
+problema?
+
+---
+# Bancos de dados
+
+No nível mais básico, um BD é uma coleção de tabelas. Assim como um data frame,
+uma tabela é uma coleção de colunas nomeadas, onde cada coluna possui um tipo
+distinto. Até aí parece que não teríamos muito problema de usar o R para
+trabalhar os dados de um BD...
+
+O problema é que quase nenhum SGBD tem suporte embutido ao R, porque ele é uma
+linguagem que fundamentalmente opera em memória RAM. Isso quer dizer que
+precisamos de um jeito de conectar o R aos BDs que armazenam os nossos dados.
+Caso contrário, toda vez que precisarmos fazer alguma mudança, vamos ter que
+falar com a pessoa responsável pelo BD.
+
+Mas como seria possível ter uma maneira consistente de conectar o R a todos os
+bancos de dados que existem? Temos SGBDs que necessitam de um servidor central
+poderoso (PostgreSQL, MariaDB, SQL Server, MySQL, etc.), SGBDs que rodam
+exclusivamente na nuvem (Snowflake, RedShift, BigQuery, etc.) e SGBDs capazes de
+funcionar em computadores comuns como os nossos (SQLite, duckdb, etc.); como
+podemos reduzir toda essa complexidade e ao mesmo tempo usar o R?
+
+---
+# O pacote DBI
+
+O pacote DBI (do inglês _**d**ata**b**ase **i**nterface_) oferece uma interface
+R para todos os SGBDs mais populares. Ele possui funções genéricas de conexão,
+escrita, leitura, etc. que servem para qualquer BD, dado que todos usam versões
+muito similares do SQL. A grande vantagem do DBI é que outros pacotes podem
+pegar essas funções genéricas e implementar versões específicas delas que
+funcionam para um único SGBD. No final, podemos usar sempre as mesmas funções
+para acessar qualquer BD e precisamos apenas tomas o cuidado de escolher o
+_backend_ correto!
+
+Sendo assim, se o SGBD que precisamos acessar for PostgreSQL, vamos ter que usar
+o pacote RPostgres; se o BD for MySQL, vamos ter que usar o RMariaDB (sim, o
+mesmo pacote vale para MySQL e MariaDB, por isso o nome estranho); etc.
+
+Se não conseguirmos encontrar um pacote específico para o nosso SGBD,
+provavelmente podemos simplesmente usar o pacote odbc, que usa o amplamente
+suportado protocolo ODBC. A única ressalva é que o odbc precisa de mais
+configuração, pois precisamos instalar os drivers necessários do ODBC e ensinar
+o pacote odbc a encontrá-los.
+
+---
+# Conexão
+
+Para o DBI, A diferença entre SGBDs aparece praticamente só na conexão: usamos a
+função `dbConnect()` e, como primeiro argumento, o seletor do pacote cliente.
+Vale ressaltar que cada SGBD tem o seu processo de autenticação, então
+precisamos verificar a documentação de cada pacote para saber o que é
+necessário. Abaixo vemos dois exemplos (não executados) de como conectar a um
+BD.
+
+
+
+
+```r
+library(DBI)
+con &lt;- dbConnect(
+  RMariaDB::MariaDB(),
+  username = "pessoa"
+)
+con &lt;- dbConnect(
+  RPostgres::Postgres(),
+  hostname = "banco.empresa.com",
+  port = 1234
+)
+```
+
+---
+# duckdb
+
+O custo de criar um BD na nuvem para usarmos neste curso seria grande demais,
+então vamos recorrer a uma ótima alternativa: o duckdb. Esse SGBD está
+totalmente encapsulado dentro do pacote e é capaz de criar um banco local de
+alta performance! A conexão segue o mesmo princípio do slide anterior, mas não
+precisamos autenticar nada.
+
+
+```r
+con &lt;- dbConnect(duckdb::duckdb())
+```
+
+O duckdb é uma ótima alternativa para iniciantes que querem testar as
+funcionalidades do DBI, mas não quer pagar pela infraestrutura de um SGBD
+comercial. Se quiséssemos usar o duckdb para um projeto de verdade,
+precisaríamos escolher um diretório onde armazenar os nossos dados
+permanentemente.
+
+
+```r
+# Executar no seu Rproj do curso
+con &lt;- dbConnect(duckdb::duckdb(), dbdir = "data-raw/duck")
+```
+
+---
+# Escrita
+
+Para escrever no BD uma base que temos no computador, usamos a função
+`dbWriteTable()`. O seu primeiro argumento é a conexão, o segundo é o nome da
+tabela e o terceiro é o data frame. Esse passo normalmente não é necessário,
+pois quase sempre queremos ler uma tabela que já está no banco.
+
+
+
+
+```r
+# Tabela da aula passada, disponível em racoes.csv
+dbWriteTable(con, "racoes", racoes)
+```
+
+A função `dbListTables()` é bastante útil, porque ela lista todas as tabelas
+salvas no BD. É comum um BD ter dezenas e até centenas de tabelas distintas,
+então podemos consultar todas sem precisar falar com a pessoa responsável pelo
+banco.
+
+
+```r
+dbListTables(con)
+```
+
+```
+#&gt; [1] "racoes"
+```
+
+---
+# Leitura
+
+Para ler uma tabela salva no BD, usamos a função `dbReadTable()`. O seu primeiro
+argumento é a conexão e o segundo é o nome da tabela. Note que a saída é um data
+frame comum, não uma tibble do tidyverse como normalmente.
+
+
+```r
+dbReadTable(con, "racoes")
+```
+
+```
+#&gt;   id   nome racao_favorita            refeicoes idade
+#&gt; 1  1  Bacon         Bovina               Almoço   5.5
+#&gt; 2  2 Dexter           &lt;NA&gt;       Almoço e janta   2.0
+#&gt; 3  3    Zip      De frango Café, almoço e janta   1.5
+```
+
+Se soubermos alguma coisa de SQL, já podemos executar nossa primeira consulta. A
+função `dbGetQuery()` recebe uma string com código SQL e o executa direto no BD.
+
+
+```r
+# Saída idêntica à acima
+dbGetQuery(con, "SELECT * FROM racoes")
+```
+
+---
+# O pacote dbplyr
+
+Se não quisermos aprender SQL, o pacote dbplyr é perfeito porque ele faz os
+verbos do dplyr funcionarem com BDs conectados via DBI. Por trás dos panos, ele
+está traduzindo todos os nossos comandos para SQL.
+
+
+```r
+library(tidyverse)
+library(dbplyr)
+
+(racoes &lt;- tbl(con, "racoes"))
+```
+
+```
+#&gt; # Source:   table&lt;racoes&gt; [3 x 5]
+#&gt; # Database: DuckDB 0.7.1 [root@Darwin 22.4.0:R 4.3.0/:memory:]
+#&gt;      id nome   racao_favorita refeicoes            idade
+#&gt;   &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;                &lt;dbl&gt;
+#&gt; 1     1 Bacon  Bovina         Almoço                 5.5
+#&gt; 2     2 Dexter &lt;NA&gt;           Almoço e janta         2  
+#&gt; 3     3 Zip    De frango      Café, almoço e janta   1.5
+```
+
+---
+# Consultas
+
+A partir do momento em que tivermos um objeto gerado pela função `tbl()`,
+podemos usar as funções do dplyr normalmente. O dbplyr também mantém uma
+referência ao fato de que está base está sendo consultada via duckdb.
+
+
+```r
+racoes |&gt;
+  filter(idade &lt; 3) |&gt;
+  select(id:refeicoes) |&gt;
+  mutate(letras = str_length(nome))
+```
+
+```
+#&gt; # Source:   SQL [2 x 5]
+#&gt; # Database: DuckDB 0.7.1 [root@Darwin 22.4.0:R 4.3.0/:memory:]
+#&gt;      id nome   racao_favorita refeicoes            letras
+#&gt;   &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;                 &lt;dbl&gt;
+#&gt; 1     2 Dexter &lt;NA&gt;           Almoço e janta            6
+#&gt; 2     3 Zip    De frango      Café, almoço e janta      3
+```
+
+---
+# SQL
+
+A operação do slide anterior toda foi convertida para SQL e podemos ver isso com
+`show_query()`. Isso também serve de lembrete de que **nem todas** as funções do
+tidyverse funcionam com o dbplyr! Operações complexas de modelagem estatística,
+por exemplo, precisam ser executadas depois que a tabela vir para o R.
+
+
+```r
+racoes |&gt;
+  filter(idade &lt; 3) |&gt;
+  select(id:refeicoes) |&gt;
+  mutate(letras = str_length(nome)) |&gt;
+  show_query()
+```
+
+```
+#&gt; &lt;SQL&gt;
+#&gt; SELECT id, nome, racao_favorita, refeicoes, LENGTH(nome) AS letras
+#&gt; FROM racoes
+#&gt; WHERE (idade &lt; 3.0)
+```
+
+---
+# Tabelas preguiçosas
+
+Como aludido no slide anterior, nenhuma das operações demonstradas até agora de
+fato estão sendo executadas; para executá-las e trazer o resultado para dentro
+do R, precisamos usar a função `collect()`. Se a nossa tabela fosse maior, o R
+nem saberia dizer o número de linhas que ela tem antes do `collect()`!
+
+
+```r
+racoes |&gt;
+  filter(idade &lt; 3) |&gt;
+  select(id:refeicoes) |&gt;
+  mutate(letras = str_length(nome)) |&gt;
+  collect()
+```
+
+```
+#&gt; # A tibble: 2 × 5
+#&gt;      id nome   racao_favorita refeicoes            letras
+#&gt;   &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;                 &lt;dbl&gt;
+#&gt; 1     2 Dexter &lt;NA&gt;           Almoço e janta            6
+#&gt; 2     3 Zip    De frango      Café, almoço e janta      3
+```
+
+---
+# Rodada bônus: Spark
+
+Spark, diferentemente dos BDs que vimos até agora, é um motor de análise de
+dados em larga escala. Ele tem interfaces com diferentes linguagens e pode
+executar operações de machine learning em data frames imensos através de
+clusters Hadoop, Kubernetes, etc.
+
+
+```r
+# Instalar o pacote sparklyr
+install.packages("sparklyr")
+
+# Instalar o Spark localmente para testes
+spark_install()
+
+# Conectar com um cluster local temporário
+con &lt;- spark_connect(master = "local")
+```
+
+Para saber mais sobre como usar o Spark de maneira efetiva, a documentação
+oficial do sparklyr é um ótimo lugar para começar: https://spark.rstudio.com/.
+
+---
+class: middle, center, inverse
+# Junção
+
+---
+# Motivação
+
+A partir do momento em que somos capazes de trabalhar com bancos de dados,
+aumenta muito a nossa necessidade de conseguir cruzar tabelas. Isso acontece
+porque raramente uma análise vai depender de um só data frame; por questões de
+espaço e eficiência, é comum dividir os dados do banco ao longo de múltiplas
+tabelas que podem ser unidas posteriormente conforme a necessidade.
+
+Esse processo pode levar muitos nomes: junção, cruzamento, união, join, etc. O
+termo correto em português é junção, mas é muito mais comum falarmos cruzamento
+ou join.
+
+Apesar de já termos aprendido um pouco sobre o assunto no _R para Ciência de
+Dados I_, hoje vamos explorá-lo a fundo e ver todos os tipos de joins que o
+pacote dplyr pode nos oferecer. Também vamos falar um pouco da teoria por trás
+das junções, como por exemplo o que é uma chave e para quê ela serve.
+
+No final da aula vamos ter aprendido todos os joins mais comuns e como usar a
+função `join_by()` para reduzir muito o nosso trabalho com joins complexos.
+
+---
+# Junção
+
+Cruzar duas bases significa unir as suas colunas de uma forma consistente. Um
+exemplo clássico no R é o pacote nycflights13, cujas tabelas tratam de voos
+nova-iorquinos de 2013; com ele, podemos querer juntar os dados de clima com os
+de decolagens, os dados de aviões com os de companhias aéreas, e assim por
+diante.
+
+Para simplificar o problema, vamos usar duas tabelas bastante simples chamadas
+`x` e `y`. A `x` tem as colunas `key` e `val_x`, enquanto a `y` tem `key` e
+`val_y`. Nosso objetivo vai ser (quase) sempre conectar `val_x` e `val_y` usando
+alguma regra com `key`.
+
+&lt;img src="img/03_bancos/setup.png" width="25%" style="display: block; margin: auto;" /&gt;
+
+Todas as imagens deste módulo são do [_R for Data Science_
+(2e)](https://r4ds.hadley.nz/).
+
+---
+# Chaves
+
+Uma **chave primária** é uma coluna ou conjunto de colunas que identifica
+singularmente cada observação de uma tabela. Em uma tabela de pessoas, por
+exemplo, o CPF delas sempre vai ser uma chave primária.
+
+Em contrapartida, uma **chave estrangeira** é uma coluna ou conjunto de colunas
+que correspondem a uma chave primária de outra tabela. Em uma tabela de compras,
+o CPF de quem fez a compra é uma chave estrangeira para a tabela de pessoas. É
+importante lembrar que duas tabelas podem ter as mesmas chaves, ou seja, elas
+serão tanto primárias quanto estrangeiras!
+
+No limite, não precisamos nos preocupar com esses termos técnicos. Na hora de
+cruzar duas tabelas, precisamos decidir qual(is) coluna(s) da primeira casa(m)
+com qual(is) coluna(s) da segunda. No exemplo acima, provavelmente vamos querer
+que a coluna CPF da tabela de pessoas case com a coluna CPF da tabela de
+compras. As linhas da tabela resultante trarão as informações cadastrais de cada
+pessoa (email, nome, idade, etc.) e as informações de cada compra feita em seu
+CPF (valor, itens, data, etc.)
+
+---
+# Junções com transformações
+
+O primeiro tipo de join é o mais simples: a **junção com transformação**. Um
+cruzamento desse tipo casa as linhas de duas tabelas de acordo com suas chaves,
+depois copia as variáveis de uma tabela para a outra. É exatamente o processo
+que vimos no slide anterior.
+
+As funções de join do dplyr recebem as duas tabelas e uma especificação dada
+pela função `join_by()`, que recebe uma ou mais expressões para definir o join.
+No caso abaixo, estamos dizendo que a `key` de `x` casa com a `key` de `y`.
+
+
+
+
+```r
+inner_join(x, y, join_by(key == key)) # Mais sobre join_by() em breve
+```
+
+```
+#&gt; # A tibble: 2 × 3
+#&gt;     key val_x val_y
+#&gt;   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;
+#&gt; 1     1 x1    y1   
+#&gt; 2     2 x2    y2
+```
+
+---
+# left_join()
+
+O join mais comum é o `left_join()`. No geral usamos ele para adicionar novos
+dados a uma tabela principal, ou seja, queremos preservar todas as linhas da
+tabela principal e adicionar novas informações onde for possível.
+
+No exemplo abaixo, a tabela resultante tem as mesmas linhas de `x` com a adição
+dos dados carregados pela `y` (somente onde eles estão disponíveis).
+
+&lt;img src="img/03_bancos/left_join.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+# right_join()
+
+O `right_join()` é o oposto do `left_join()`, ou seja, ele assume que a tabela
+principal é `y` e não `x`. Ele é bastante útil quando precisamos fazer o join
+dentro da pipeline que está tratando a tabela secundária.
+
+No exemplo abaixo, a tabela resultante tem as mesmas linhas de `y` com a adição
+dos dados carregados pela `x` (somente onde eles estão disponíveis).
+
+&lt;img src="img/03_bancos/right_join.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+# inner_join()
+
+O `inner_join()` funciona de maneira similar ao `left_join()`, mas ele remove
+todas as linhas de `x` que não têm nenhuma correspondência em `y`. Ele é útil
+para encontrar a intersecção entre duas tabelas.
+
+No exemplo abaixo, a tabela resultante tem as linhas de `x` que encontraram
+correspondente em `y`, com a adição dos dados carregados pela `y`.
+
+&lt;img src="img/03_bancos/inner_join.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+# full_join()
+
+O `full_join()` é o oposto do `inner_join()`, pois ele mantém todas as linhas de
+ambas as tabelas sendo cruzadas. Podemos usá-lo para fazer a união entre duas
+tabelas e observar tanto as suas intersecções quanto suas diferenças.
+
+No exemplo abaixo, a tabela resultante tem todas as linhas de `x` e de `y`.
+
+&lt;img src="img/03_bancos/full_join.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+# Linhas repetidas
+
+Nos joins que vimos até agora é muito comum ter várias linhas de uma tabela
+casando com uma linha de outra e normalmente não há nada de errado com isso. No
+próprio exemplo das compras, cada pessoa poderia ter feito várias aquisições!
+
+Abaixo vemos o que aconteceria se `y` tivesse duas linhas correspondendo com a
+segunda linha de `x` e, como é de se esperar, `x2` é replicada para casar com
+`y2` e `y3`. É justamente para evitar o desperdício de espaço com duplicações
+que bancos de dados normalmente são compostos de múltiplas tabelas menores.
+
+&lt;img src="img/03_bancos/matching.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+# Junções com filtros
+
+O segundo tipo de join serve, na verdade, para filtrar tabelas: a **junção com
+filtro**. Um cruzamento desse tipo casa as linhas de duas tabelas de acordo com
+suas chaves, mas, ao invés de combinar suas colunas, ele filtra as linhas da
+primeira tabela conforme a função utilizada.
+
+Para simplificar o problema, vamos continuar usando as mesmas tabelas que vimos
+até agora, `x` e `y`. Lembrando que a `x` tem as colunas `key` e `val_x`,
+enquanto a `y` tem `key` e `val_y`.
+
+
+```r
+semi_join(x, y, join_by(key == key)) # Mais sobre join_by() em breve
+```
+
+```
+#&gt; # A tibble: 2 × 2
+#&gt;     key val_x
+#&gt;   &lt;dbl&gt; &lt;chr&gt;
+#&gt; 1     1 x1   
+#&gt; 2     2 x2
+```
+
+---
+# semi_join()
+
+O `semi_join()` é similar ao `left_join()`, com a exceção de que ele não traz os
+dados da tabela secundária para a tabela principal. Por ser uma junção com
+filtro, ele retorna as linhas da tabela principal que tenham correspondente na
+secundária.
+
+No exemplo abaixo, a tabela resultante é igual a `x` filtrada, ou seja, somente
+com as linhas com correspondente em `y`.
+
+&lt;img src="img/03_bancos/semi_join.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+# anti_join()
+
+O `anti_join()` é o oposto do `semi_join()`, pois ele faz literalmente a
+operação contrária. Ela exclui as linhas da tabela principal que tenham
+correspondente na tabela secundária e retorna o resto.
+
+No exemplo abaixo, a tabela resultante é igual a `x` filtrada, mantendo apenas
+as linhas sem correspondente em `y`.
+
+&lt;img src="img/03_bancos/anti_join.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+# join_by()
+
+No primeiro exemplo de join nós usamos a `join_by()`, mas depois disso não
+falamos mais dela. Por padrão os joins procuram todas as colunas com os mesmos
+nomes nas duas tabelas e usam esse conjunto como chaves, então não precisávamos
+de `join_by()` com a `x` e a `y`.
+
+
+```r
+left_join(x, y)
+```
+
+Se quiséssemos explicitar as chaves, podemos usar uma expressão dentro da
+`join_by()` como terceiro argumento do join.
+
+
+```r
+left_join(x, y, join_by(id == id)) # x$id casa com y$id
+left_join(x, y, join_by(id)) # x$id casa com y$id
+left_join(a, b, join_by(col1 == col2)) # a$col1 casa com b$col2
+
+# a$col1 casa com b$col2 e a$col3 casa com b$col4
+left_join(a, b, join_by(col1 == col2, col3 == col4))
+```
+
+---
+# Junção não idêntica
+
+No slide anterior, usamos sempre o sinal de igualdade dentro da `join_by()`, mas
+isso não é necessário! Até agora só vimos junções idênticas (_equi joins_),
+contudo podemos fazer também junções não idênticas (_non-equi joins_).
+
+Sendo assim, temos quatro tipos de join sendo que apenas o primeiro deles é um
+join idêntico:
+
+- Condição de igualdade: `==`
+
+- Condição de desigualdade: `&gt;=`, `&gt;`, `&lt;=` ou `&lt;`
+
+- Rolagem: `closest()`
+
+- Sobreposição: `between()`, `within()` ou `overlaps()`
+
+Assim como no caso do _equi join_, os _non-equi_ serão declarados dentro da
+função `join_by()` durante a especificação do cruzamento.
+
+---
+# Desigualdades
+
+Uma junção com desigualdade é funciona igual à função de join sendo utilizada no
+sentido de que ela realizará a mesma operação de cruzamento. A diferença é que a
+correspondência entre as duas ocorre não pela igualdade entre as chaves, mas sim
+por uma desigualdade entre elas. Além disso, as chaves não são fundidas!
+
+No exemplo de `left_join()` abaixo, as chaves de `x` casam com as chaves de `y`
+maiores ou iguais a elas próprias.
+
+&lt;img src="img/03_bancos/inequality.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+# Rolagem
+
+Qualquer junção com desigualdade pode ser transformada em uma junção com rolagem
+através da função `closest()`. Neste caso, serão retornadas apenas as linhas do
+join que atendam à desigualdade com o mínimo de diferença possível.
+
+No exemplo de `left_join()` abaixo, os círculos representam todas as
+correspondências da desigualdade. Com a `closest()`, apenas os círculos pretos
+serão retornados.
+
+&lt;img src="img/03_bancos/rolling.png" width="40%" style="display: block; margin: auto;" /&gt;
+
+---
+# Sobreposição
+
+Uma junção com sobreposição é um atalho para uma junção com desigualdade
+complexa. No fundo, estamos apenas reduzindo a quantidade de expressões que
+vamos escrever, mas o resultado é absolutamente o mesmo.
+
+Temos três funções de sobreposição que devem ser colocadas dentro da `join_by()`
+da mesma maneira que a `closest()`. Elas são as seguintes:
+
+- `between(col1, col2, col3)`: equivalente a `col1 &gt;= col2, col1 &lt;= col3`, ou
+seja, `col1` deve estar entre `col2` e `col3`
+
+- `within(col1, col2, col3, col4)`: equivalente a `col1 &gt;= col3, col2 &lt;= col4`,
+ou seja, se o intervalo [`col1`, `col2`] está completamente contido no intervalo
+[`col3`, `col4`]
+
+- `overlaps(col1, col2, col3, col4)`: equivalente a `col1 &lt;= col4, col2 &gt;=
+col3`, ou seja, se o intervalo [`col1`, `col2`] tem alguma intersecção com o
+intervalo [`col3`, `col4`]
+
+---
+class: middle, center, inverse
+# Fim
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

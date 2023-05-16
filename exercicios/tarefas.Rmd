@@ -17,6 +17,12 @@ Resolver os exercícios dos capítulos 08, 19 e 21 do _R for Data Science (2e)_:
 
 # Aula 3 -----------------------
 
+Resolver os exercícios dos capítulos 22 e 20 do _R for Data Science (2e)_:
+
+- Databases: https://r4ds.hadley.nz/databases.html
+
+- Joins: https://r4ds.hadley.nz/joins.html
+
 # Aula 4 -----------------------
 
 # Aula 5 -----------------------

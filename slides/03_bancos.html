@@ -101,7 +101,7 @@ o pacote odbc a encontrá-los.
 ---
 # Conexão
 
-Para o DBI, A diferença entre SGBDs aparece praticamente só na conexão: usamos a
+Para o DBI, a diferença entre SGBDs aparece praticamente só na conexão: usamos a
 função `dbConnect()` e, como primeiro argumento, o seletor do pacote cliente.
 Vale ressaltar que cada SGBD tem o seu processo de autenticação, então
 precisamos verificar a documentação de cada pacote para saber o que é
@@ -263,7 +263,7 @@ racoes |&gt;
 A operação do slide anterior toda foi convertida para SQL e podemos ver isso com
 `show_query()`. Isso também serve de lembrete de que **nem todas** as funções do
 tidyverse funcionam com o dbplyr! Operações complexas de modelagem estatística,
-por exemplo, precisam ser executadas depois que a tabela vir para o R.
+por exemplo, precisam ser executadas depois que a tabela vier para o R.
 
 
 ```r
@@ -550,8 +550,8 @@ Se quiséssemos explicitar as chaves, podemos usar uma expressão dentro da
 
 
 ```r
-left_join(x, y, join_by(id == id)) # x$id casa com y$id
-left_join(x, y, join_by(id)) # x$id casa com y$id
+left_join(x, y, join_by(key == key)) # x$key casa com y$key
+left_join(x, y, join_by(key)) # x$key casa com y$key
 left_join(a, b, join_by(col1 == col2)) # a$col1 casa com b$col2
 
 # a$col1 casa com b$col2 e a$col3 casa com b$col4

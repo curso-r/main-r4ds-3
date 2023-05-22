@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R para Ciência de Dados 3</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link rel="stylesheet" href="css/xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# R para Ciência de Dados 3
+]
+.subtitle[
+## Git e GitHub
+]
+.author[
+### <img src = 'https://d33wubrfki0l68.cloudfront.net/9b0699f18268059bdd2e5c21538a29eade7cbd2b/67e5c/img/logo/cursor1-5.png' width = '30%'>
+]
+
+---
+
+
+
+
+class: middle, center
+# Iniciar gravação!
+
+---
+class: middle, center, inverse
+# Preparação
+
+---
+# Motivação
+
+Provavelmente todos nós já passamos por uma situação na qual gostaríamos de
+restaurar um arquivo para uma versão passada. Também já devemos todos ter tido
+dificuldades ao organizar diferentes versões de um arquivo importante
+(`versao_final.docx`, `versao_final_v2.docx`, `versao_final_final_v2.docx`,
+etc.).
+
+Além disso, é muito comum querermos colaborar com outras pessoas nos nossos
+projetos de programação. Podemos querer mostrar nossos resultados para o mundo
+ou talvez apenas receber ajuda de outras pessoas da mesma empresa ou faculdade.
+
+Será que existe uma maneira de resolver todos esses problemas sem aumentar muito
+a complexidade do nosso fluxo de programação ou análise?
+
+Idealmente, a solução precisa de uma forma (consistente) de salvar as diferentes
+versões dos nossos arquivos, de preferência com algum modo de recuperar as
+versões antigas. A solução também precisa se conectar a um servidor que seja
+capaz de compartilha nosso código com as pessoas interessadas para permitir
+colaboração de qualquer tipo. Será que essa tecnologia existe?
+
+---
+# Git
+
+Git é um sistema de controle de versão que, desde a sua criação, se tornou uma
+das ferramentas mais importantes no arsenal de quem programa. Para quem nunca
+ouviu falar dele antes, o objetivo dele é parecido com o do Track Changes do
+Word: salvar seu progresso ao longo do tempo para que você não precise ficar
+criando backups manualmente.
+
+O Git é um programa que vive no nosso computador e, a princípio, ele não tem
+nenhuma funcionalidade relevante além de salvar versões do seu trabalho.
+Entretanto, quando conectamos ele a um serviço de hospedagem como o GitHub, o
+Git realmente atinge o seu potencial máximo.
+
+No limite, ele vai nos ajudar a gerenciar versões, colaborar com outras pessoas
+remotamente, guardar de forma segura todos os nossos scripts, tabelas e
+relatórios, dentre muitos outros!
+
+O funcionamento dessa ferramenta vai girar em torno de repositórios, o nome que
+damos para uma pasta de arquivos cujas versões são controladas.
+
+---
+# Atualizando tudo
+
+Atualizem seus programas! Usar versões antigas de pacotes ou linguagens pode
+seriamente prejudicar a nossa capacidade de usar o Git. Minha recomendação é
+atualizar **o R e o RStudio a cada 6 meses** e os **os pacotes todo mês**.
+
+Para atualizar o RStudio, basta usar o executável mais recente do site:
+https://posit.co/download/rstudio-desktop/. Para atualizar o R (no Windows),
+podemos usar a função `updateR()` do pacote installr.
+
+
+```r
+library(installr)
+updateR()
+```
+
+Se demorarmos muito tempo para atualizar o R, pode ser que percamos todos os
+pacotes que tínhamos instalado. Se isso não ocorrer, podemos atualizá-los com o
+comando abaixo:
+
+
+```r
+update.packages(ask = FALSE, checkBuilt = TRUE)
+```
+
+---
+# Instalação
+
+Instalar o Git no Windows é um processo um pouco sensível. Ele não é complicado,
+mas existem algumas pegadinhas que podem bagunçar tudo. O jeito mais simples é
+baixando o executável 64-bit do site: https://git-scm.com/download/win.
+
+Se o instalador perguntar sobre "_Adjusting your PATH environment_", selecione a
+opção **_Git from the command line and also from 3rd-party software_**. Isso
+garante que teremos todas as ferramentas que precisamos para os próximos passos.
+
+Fora isso, não modifique as opções padrões. Uma delas, por exemplo, garante que
+o Git será instalado em `C:/Program Files`, passo necessário para que o RStudio
+o encontre depois.
+
+Se o Git estiver corretamente instalado, o comando abaixo deve retornar alguma
+coisa detalhando a nossa instalação.
+
+
+```r
+usethis::git_sitrep()
+```
+
+---
+# GitHub
+
+GitHub é um serviço de hospedagem de repositórios. Muita gente confunde o Git
+com o GitHub achando que os dois são partes da mesma coisa, mas existem vários
+outros serviços como o GitHub que fazem o mesmo trabalho: GitLab, Bitbucket,
+etc. Nós focamos no GitHub porque ele é gratuito (para muitas coisas) e de longe
+o mais utilizado de todos.
+
+Diferentemente do Git, o GitHub é um site. Além de hospedar nosso código como um
+Google Drive, ele permite encontrar os repositórios abertos de outras pessoas,
+trabalhar em conjunto nos nossos próprios repositórios, fazer sugestões nos
+repositórios alheios, gerenciar bugs nos nossos projetos e muito mais!
+
+Mas por que precisamos usar um serviço de hospedagem? No limite, porque ele
+serve de backup e de versão "oficial" do nosso trabalho. Se nosso computador
+quebrar, podemos restaurar uma cópia do GitHub. Se estragarmos sem querer o
+nosso código, também podemos restaurar uma cópia.
+
+Ele já tem repositórios ilimitados no plano gratuito; não precisamos de mais
+nada.
+
+---
+# Cadastro
+
+Criar um cadastro no GitHub é muito simples, basta seguir o passo a passo do
+link https://github.com/signup. Como ele não pede nosso cartão de crédito para
+criar a conta, não precisamos nos preocupar com cobranças indevidas.
+
+A única dica aqui é sobre o nome de usuário. Como essa vai ser a nossa porta
+para o mundo da programação, vale a pena gastar um minuto pensando em um nome de
+usuário apropriado. Algumas sugestões:
+
+- Incorpore parte de seu nome real, pois um pseudônimo pode ser confuso.
+
+- Escolha um nome que você colocaria no seu currículo, como um email.
+
+- Não use sua faculdade, trabalho ou residência no nome, pois eles vão mudar.
+
+- Use sempre letras minúsculas, pois o GitHub ignora a caixa de qualquer jeito.
+
+Se necessário, não é difícil trocar o nome de usuário mais tarde. Siga as
+instruções da
+[documentação](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-personal-account-settings/changing-your-github-username)
+deles.
+
+---
+# Configuração
+
+Depois de instalarmos o Git e nos cadastrarmos no GitHub, podemos conectar os
+dois no nosso computador. Usando o pacote usethis, basta rodar a função
+`use_git_config()` seguida pela `git_default_branch_configure()`. Nunca mais
+precisaremos executar esses comandos na mesma máquina.
+
+A `use_git_config()` tem dois argumentos: `user.name` e `user.email`. O primeiro
+pode ser o seu nome de usuário do GitHub ou o seu nome real, não importa. Já o
+segundo precisa necessariamente ser o seu **email cadastrado no GitHub**.
+
+A `git_default_branch_configure()` serve para configurar o nome do _branch_
+padrão. Não vamos nos preocupar com o que isso significa, mas executar esse
+comando é importante.
+
+
+```r
+library(usethis)
+use_git_config(user.name = "Meu Nome", user.email = "eu@exemplo.com")
+git_default_branch_configure()
+```
+
+---
+# PAT
+
+Quando usamos um serviço como o GitHub através do Git, precisamos incluir nossas
+credenciais na requisição. Isso prova que somos realmente a pessoa que alegamos
+ser e que temos autorização para realizar a requisição que fizemos.
+
+O Git pode se conectar com o GitHub usando dois protocolos diferentes: HTTPS ou
+SSH. Cada um destes usa credenciais diferentes e precisam ser configurados à sua
+maneira, mas recomendamos fortemente começar pelo HTTPS se não houver um motivo
+significativo para escolher o SSH.
+
+O método HTTPS usa, ao invés de uma senha, um **token de acesso pessoal** (PAT).
+Um PAT é um longo código que o GitHub gera para nós e que pode ser usado no
+lugar de uma senha em situações específicas; a vantagem de usar um PAT é que ele
+pode ter um prazo de validade, permissões limitadas e ser revogado manualmente.
+
+---
+# Criando um PAT
+
+O comando abaixo ajuda na criação do seu primeiro PAT. Ele abre uma página no
+GitHub com algumas permissões pré-preenchidas que podemos aceitar sem medo.
+
+
+```r
+create_github_token()
+```
+
+Antes de gerar o PAT, precisamos dar um nome para ele; no geral usamos um token
+por computador, então os seu nome deve refletir isso. A última recomendação é
+aumentar o tempo de validade do PAT para **No expiration** a menos que haja
+algum motivo para não fazê-lo.
+
+Assim que tivermos confirmado o nome e a validade do nosso PAT, podemos clicar
+em **Generate token**. Preste bastante atenção! Por questões de segurança, o
+GitHub vai exibir o token gerado _apenas uma vez_, então é essencial que o
+copiemos agora.
+
+Como aludido no slide anterior, se por um acaso um PAT nosso vazar, podemos
+deletá-lo no link https://github.com/settings/tokens.
+
+---
+class: middle, center
+
+&lt;img src="img/04_git_github/new_token.png" width="2069" style="display: block; margin: auto;" /&gt;
+
+---
+# Salvando um PAT
+
+Depois de copiar um PAT do GitHub, precisamos salvá-lo de forma permanente. Este
+processo garante que não precisemos colar o código toda vez que formos usar
+alguma funcionalidade do Git através do R.
+
+A função que nos ajuda a fazer isso é a `gitcreds_set()` do pacote gitcreds, que
+já é instalado automaticamente pelo usethis. Ao executar essa função, somos
+indicados a colar o PAT que copiamos no passo anterior no console do R; isso
+salvará o PAT de forma segura e as funções do usethis terão acesso a ele sem que
+precisemos digitá-lo toda vez.
+
+
+```r
+gitcreds::gitcreds_set()
+```
+
+```
+? Enter password or token: ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+-&gt; Adding new credentials...
+-&gt; Removing credentials from cache...
+-&gt; Done.
+```
+
+---
+class: middle, center, inverse
+# Uso
+
+---
+class: middle, center
+
+&lt;img src="img/04_git_github/git_workflow_allison.png" width="55%" style="display: block; margin: auto;" /&gt;
+
+[Ilustração por @allison_horst](https://twitter.com/allison_horst)
+
+---
+# Repositórios
+
+Formalmente, um repositório (ou repo) é um conjunto de arquivos cujas versões
+são gerenciadas pelo Git e hospedadas remotamente no GitHub. Na prática vamos
+versionar todos os arquivos da pasta de um Rproj, então o diretório, o projeto e
+o repo são equivalentes.
+
+Para criar um novo repositório, podemos começar direto pelo GitHub. O botão de
+`+` na direita superior ou o link https://github.com/new iniciam o processo de
+criação de um novo repo.
+
+Por enquanto, só precisamos de um nome. Aqui valem as mesmas regras de nomeação
+de diretórios e projetos R, então nada de caracteres especiais ou nomes sem
+sentido.
+
+Opcionalmente, podemos adicionar uma descrição para o repositório ou até
+deixá-lo privado para que ninguém além de nós possa vê-lo. As outras opções da
+página de criação não costumam ser muito úteis, então vamos deixá-las de lado
+por enquanto.
+
+Escolhido um nome para o nosso repo, podemos clicar em **Create repository**.
+
+---
+class: middle, center
+
+&lt;img src="img/04_git_github/new_repo.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+# Comandos
+
+Nós interagimos com o Git através de uma gama de comandos, de forma similar às
+funções de um pacote. Se estivéssemos aprendendo a usar o Git isoladamente,
+provavelmente aprenderíamos os argumentos e usos de cada funções, mas a sorte é
+que o RStudio facilita bastante o nosso trabalho.
+
+A seguir vamos falar brevemente sobre os principais comandos do Git e como
+podemos usá-los via RStudio. Eles são:
+
+- `git clone`: traz um repositório do GitHub para a nossa máquina.
+
+- `git add`: aceita uma modificação no repositório e a leva para a área de
+commit.
+
+- `git commit`: salva um conjunto de mudanças localmente.
+
+- `git push`: sobe um conjunto de mudanças para o GitHub.
+
+- `git pull`: traz atualizações do GitHub para o repositório local
+
+---
+class: middle, center
+
+&lt;img src="img/04_git_github/git_workflow.png" width="1567" style="display: block; margin: auto;" /&gt;
+
+---
+# Comandos: clone
+
+O comando `git clone`, como o nome sugere, clona um repositório em um novo
+diretório. Em outras palavras, ele baixa um repositório hospedado em um serviço
+como o GitHub para dentro de uma pasta.
+
+Existem duas maneiras de fazer isso no R, ambas integradas com o conceito de
+rproj. A primeira é com a `create_from_github()` do usethis. Ela funciona
+exatamente igual à `create_project()`, mas recebe o link de um repositório do
+GitHub como primeiro argumento e um caminho absoluto como segundo.
+
+Estou usando o diretório `/tmp` para esta demonstração, mas no seu computador
+você provavelmente quer usar o `C:/Programacao` ou qualquer coisa que o valha.
+
+
+```r
+create_from_github("https://github.com/clente/aula04", "/tmp/")
+```
+
+O segundo método é através do RStudio com **File &gt; New Project &gt; Version Control &gt;
+Git**. Depois é só preencher os campos como na imagem a seguir.
+
+---
+class: middle, center
+
+&lt;img src="img/04_git_github/new_rproj.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+# Comandos: add
+
+Depois de clonar um repositório na forma de projeto, podemos começar a criar /
+editar / deletar os seus arquivos. Neste momento podemos trabalhar normalmente
+com o R e com o RStudio, nada mudou só pelo fato de que agora estamos usando Git
+na pasta do rproj.
+
+De vez em quando, entretanto, vamos querer registrar nossas alterações e criar
+um commit. Normalmente isso ocorre quando tivermos atingido um novo "ponto
+estável" no código, ou seja, um cenário em que tudo funciona e para o qual
+poderíamos voltar caso algo desse errado no futuro.
+
+Esse processo de se comprometer com a alteração de alguns (ou todos) arquivos é
+feito com o comando `git add`, que essencialmente leva os arquivos selecionados
+para a _staging area_ aguardando um commit.
+
+No RStudio fazemos o `add` na aba do Git, selecionando os arquivos desejados e
+clicando na caixa vazia que se encontra ao lado do nome deles. É importante
+notar que até a deleção de um arquivo precisa passar por esse processo!
+
+---
+class: middle, center
+
+&lt;img src="img/04_git_github/git_add.png" width="3333" style="display: block; margin: auto;" /&gt;
+
+---
+# Comandos: commit
+
+Depois que tivermos adicionado as alterações com as quais queremos nos
+comprometer à _staging area_, podemos de fato criar uma versão consolidada do
+nosso repositório com o comando `git commit`.
+
+Este é provavelmente o comando mais importante do Git, pois é ele que de fato
+faz o versionamento. Quando salvamos as alterações adicionadas pelo `add` com um
+`commit`, o estado atual do repositório é salvo permanentemente e associado a um
+código único que pode ser utilizado para restaurar os arquivos no caso de um
+desastre.
+
+Outro ponto importante é que podemos adicionar uma mensagem ao commit, o que
+facilita muito na hora de revisitar todas as alterações que fizemos no passado.
+Se em algum momento percebemos que uma certa função parou de funcionar, por
+exemplo, podemos consultar o histórico de mensagens no GitHub em busca do último
+commit que alterou aquela função.
+
+No RStudio fazemos o `commit` com o botão correspondente da aba do Git.
+
+---
+class: middle, center
+
+&lt;img src="img/04_git_github/git_commit.png" width="3467" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle, center
+
+&lt;img src="img/04_git_github/git_commit_allison.png" width="98%" style="display: block; margin: auto;" /&gt;
+
+[Ilustração por @allison_horst](https://twitter.com/allison_horst)
+
+---
+# Comandos: push
+
+Depois de fazer alguns commits, no fim do dia de trabalho ou antes de uma pausa
+significativa, o ideal é enviar as informações das últimas versões do nosso
+repositório para o GitHub. Lá elas estarão seguras até no caso das piores
+catástrofes.
+
+Além da segurança, é através do GitHub que outras pessoas podem clonar os nossos
+repositórios. Sendo assim, subir nossos commits com frequência é importante para
+qualquer processo colaborativo de desenvolvimento.
+
+O comando `git push` é responsável por levar os últimos commits feitos no nosso
+repo local para o chamado repo remoto, ou seja, a versão do repo que está no
+GitHub. Diferentemente dos comandos que vimos até agora, o `push` depende da
+autenticação correta do nosso usuário porque ele precisa ter certeza de que nós
+somos os donos do repo remoto; se a configuração do PAT via `gitcreds_set()`
+tiver funcionado corretamente, o RStudio não deve precisar de mais nada para
+isso.
+
+No RStudio fazemos o `push` com o botão na forma de uma seta verde apontada para
+cima. Se não houver problema, o resultado deve parecer com a imagem a seguir.
+
+---
+class: middle, center
+
+&lt;img src="img/04_git_github/git_push.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+# Comandos: pull
+
+O oposto do `push` é o `git pull`, que traz qualquer alteração que tiver
+ocorrido no repositório remoto para o repositório local.
+
+Se estivermos trabalhando individualmente, nunca há necessidade de fazer um
+`pull` a menos que utilizemos o editor de código embutido no GitHub. Caso
+contrário, o `pull` é essencial para alinhar a nossa versão local com a as
+últimas contribuições submetidas por quem estiver trabalhando conosco.
+
+É perfeitamente possível que duas pessoas trabalhando juntas façam alterações
+concomitantes em um mesmo arquivo, o que pode gerar conflitos significativos.
+Infelizmente, resolver esses conflitos nem sempre é um processo simples e,
+portanto, este tópico está fora do escopo do curso. Para aprender mais sobre o
+assunto, basta consultar a
+[documentação](https://git-scm.com/book/pt-br/v2/Branches-no-Git-O-b%C3%A1sico-de-Ramifica%C3%A7%C3%A3o-Branch-e-Mesclagem-Merge)
+do `git merge`.
+
+No RStudio fazemos o `push` com o botão na forma de uma seta azul apontada para
+baixo. Se não houver problema, o resultado deve parecer com a imagem a seguir.
+
+---
+class: middle, center
+
+&lt;img src="img/04_git_github/git_pull.png" width="3365" style="display: block; margin: auto;" /&gt;
+
+---
+# Rodada bônus: .gitignore
+
+Às vezes nos deparamos com uma situação em que não queremos subir um arquivo
+específico para o GitHub. Talvez ele seja grande demais (&gt; 100 MB), talvez ele
+contenha informações sensíveis, etc.
+
+Se quisermos manter um arquivo no nosso repo local sem nenhuma chance de subi-lo
+para o repo remoto, podemos adicioná-lo a um arquivo especial chamado
+`.gitignore`. Ele é criado automaticamente pelos processos de clonagem
+discutidos anteriormente, então ele já estará no seu projeto.
+
+Abaixo temos um exemplo de como pode ser o conteúdo de um `.gitignore` típico.
+Ele exclui alguns arquivos próprios do R e um arquivo secreto específico.
+
+```txt
+.Rproj.user
+.Rhistory
+.RData
+pasta/arquivo_secreto.txt
+```
+
+---
+class: middle, center, inverse
+# Fim
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -25,6 +25,11 @@ Resolver os exercícios dos capítulos 22 e 20 do _R for Data Science (2e)_:
 
 # Aula 4 -----------------------
 
+Crie no GitHub um repositório exemplo e teste todos os comandos Git que
+aprendemos na aula. Para simular um `pull` efetivo, adicione um arquivo chamado
+README ao seu repo usando a interface do próprio GitHub (com o botão **Add a
+README**).
+
 # Aula 5 -----------------------
 
 # Aula 6 -----------------------

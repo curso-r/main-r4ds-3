@@ -24,7 +24,7 @@ class: middle, center
 
 ---
 class: middle, center, inverse
-# Preparação
+# Preparo
 
 ---
 # Motivação

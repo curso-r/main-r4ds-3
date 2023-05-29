@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R para Ciência de Dados 3</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link rel="stylesheet" href="css/xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# R para Ciência de Dados 3
+]
+.subtitle[
+## Pacotes
+]
+.author[
+### <img src = 'https://d33wubrfki0l68.cloudfront.net/9b0699f18268059bdd2e5c21538a29eade7cbd2b/67e5c/img/logo/cursor1-5.png' width = '30%'>
+]
+
+---
+
+
+
+
+class: middle, center
+# Iniciar gravação!
+
+---
+class: middle, center, inverse
+# Básico
+
+---
+# Motivação
+
+A este ponto nós já aprendemos a usar projetos R, controlar versões com o Git e
+subir nossos repositórios para o GitHub. Isso tudo já é um grande passo em
+relação ao compartilhamento dos nossos códigos, mas ainda não chegamos ao padrão
+ouro.
+
+Um problema que podemos identificar, por exemplo, é que ainda não temos um
+método de transmitir nosso conhecimento eficientemente. Qualquer pessoa pode
+baixar nosso projeto do GitHub, mas como ela saberá o que ela pode fazer com
+ele? Precisamos de uma maneira robusta de incluir uma documentação junto com o
+código.
+
+Um problema ainda maior é que pode ser difícil saber por onde começar a usar o
+projeto. Quais arquivos são importantes? Quais são as suas dependências? Qual
+script resolve qual problema? Precisamos de uma solução que abstraia todos os
+detalhes de implementação e forneça apenas as peças que o(a) usuário(a) precisa.
+
+A resposta para esses dois problemas é o bom e velho pacote. Pode parecer que
+estamos muito longe de poder criar nosso próprio pacote, mas isso não é
+verdade...
+
+---
+# Configuração
+
+Antes que possamos começar a falar de pacotes, é necessário seguir uma instrução
+específica que depende do nosso sistema operacional. Abaixo estão listadas as
+opções mais comuns:
+
+  - Windows: instalar [RTools](https://cran.r-project.org/bin/windows/Rtools/)
+  (não é um pacote!)
+
+  - Linux (Ubuntu): executar `sudo apt install r-base-dev` no terminal
+
+  - MacOS: executar `xcode-select --install` no terminal
+
+Feito isso, podemos instalar o pacote devtools e verificar se as ferramentas de
+desenvolvimento estão configuradas corretamente:
+
+
+```r
+devtools::has_devel()
+```
+
+```
+#&gt; Your system is ready to build packages!
+```
+
+---
+# Pacotes
+
+No R, a unidade fundamental de código compartilhável é o pacote. Pacotes são
+conjuntos de código, dados, documentação e testes em um formato que pode ser
+facilmente instalado por qualquer pessoa que sabe programar R. Em outras
+linguagens o nome utilizado pode ser um pouco diferente (como biblioteca ou
+módulo), mas o conceito é exatamente o mesmo.
+
+No limite, um pacote não passa de um Rproj com uma estrutura pré-determinada.
+Felizmente, várias das sugestões sobre as quais falamos até agora são exatamente
+as mesmas que precisamos seguir para criar um pacote.
+
+A vantagem do pacote em relação a um Rproj genérico é que não precisamos
+compartilhar arquivos zip soltos e dar instruções de como utilizar os scripts
+embutidos. Pacotes podem ser instalados juntamente de suas documentações, então
+o processo todo de compartilhamento é muito mais simples.
+
+Os pacotes também precisam passar por verificações rigorosas, então é muito mais
+fácil confiar em um pacote do que em um projeto qualquer.
+
+---
+# Pacotes: criação detalhada
+
+A função `create_package()` cria o pacote através de um caminho absoluto onde o
+nome da última pasta será o nome do pacote, então precisamos pensar nisso agora.
+Estou usando o diretório `/tmp` para esta demonstração, mas no seu computador
+você provavelmente quer usar o `C:/Programacao` ou qualquer coisa que o valha.
+
+
+```r
+# Saída omitida
+usethis::create_package("/tmp/demo")
+```
+
+Os melhores nomes são simples e descritivos. Pense em algo que possa ser
+procurado facilmente no Google e que, preferencialmente, seja em inglês. As
+dicas são as de sempre: letras minúsculas e sem números. A nova regra é que
+pacotes não podem ter `-` nem `_` em seus nomes!
+
+Assim como projetos comuns, pacotes podem ser criados com a função do usethis ou
+através da interface do RStudio. No RStudio, o caminho é **File &gt; New Project &gt;
+New Directory &gt; R Package**.
+
+---
+
+&lt;img src="img/05_pacotes/new_package.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+# Pacotes: estrutura
+
+Esta é a estrutura básica de qualquer pacote:
+
+- `DESCRIPTION`: define o nome, descrição, versão, licença, dependências e
+outras características do nosso pacote
+
+- `NAMESPACE`: declara as funções que o pacote exporta para uso externo e as
+funções externas que seu pacote importa de outros pacotes (**não** editar
+manualmente)
+
+- `R/`: diretório onde ficam as funções desenvolvidas em R
+
+- `.Rbuildignore`: lista arquivos que não devem ser incluídos ao compilar o
+pacote R a partir do código-fonte (**não** editar manualmente)
+
+- `.Rproj`: este arquivo faz com que o diretório seja um projeto do RStudio
+
+- `.gitignore`: lista de arquivos que não devem ser considerados pelo Git
+
+---
+# DESCRIPTION
+
+Preencher o arquivo `DESCRIPTION` é a nossa primeira tarefa ao criar um novo
+pacote. Ele tem vários campos, mas só precisamos mexer nos abaixo (em inglês):
+
+- `Title`: deve responder à pergunta "o que faz o pacote?". Ela não pode passar
+de uma linha e cada palavra precisa começar com letra maiúscula
+
+- `Version`: a versão do pacote seguindo [versionamento
+semântico](https://pt.wikipedia.org/wiki/Versionamento). Vamos falar sobre isso
+na próxima aula
+
+- `Authors@R`: usando a formatação fornecida, ele deve conter o nosso primeiro
+nome, último nome e email. Se não tivermos ORCID, deletamos o `comment`
+
+- `Description`: deve conter um parágrafo detalhando o que o pacote é capaz de
+fazer. Duas a três linhas provavelmente será o suficiente
+
+- `License`: vai conter o caminho para o arquivo com a licença do pacote, mas
+isso será feito automaticamente em breve
+
+---
+# LICENSE
+
+Depois de criar o pacote, precisamos adicionar uma licença na forma do arquivo
+`LICENSE`. O usethis tem várias funções para fazer isso por nós:
+
+- `use_cc0_license()` (licença CC0): "sem direitos reservados", permite que o
+trabalho seja colocado em domínio público. Qualquer pessoa pode usar, modificar,
+distribuir e vender o seu trabalho sem restrição de direitos autorais
+
+- `use_mit_license()` (licença MIT): curta e permissiva, exige apenas manutenção
+dos direitos autorais. Modificações e trabalhos maiores podem ser distribuídos
+sob outros termos de uso
+
+- `use_gpl3_license()` (licença GPLv3): exige que o código-fonte dos derivados
+seja distribuído sob a mesma licença. Direitos autorais devem ser preservados
+
+- `use_proprietary_license()` (licença proprietária): todos os direitos
+reservados. Normalmente utilizada somente em repos privados no GitHub, pois não
+faz sentido abrir o seu código-fonte
+
+---
+# Checagem automática
+
+Pacotes do R possuem regras que devem ser seguidas e boas práticas que deveriam
+ser seguidas. A função `check()` do pacote devtools (atalho **CTRL + SHIFT +
+E**) verifica se estamos devendo alguma coisa em relação a essas regras e boas
+práticas.
+
+Se rodarmos `devtools::check()` através do atalho antes de adicionar uma licença
+ao pacote, por exemplo, receberemos um alerta:
+
+```
+── R CMD check results ────────────────────────── demo 0.0.0.9000 ────
+Duration: 3.5s
+
+❯ checking DESCRIPTION meta-information ... WARNING
+  Non-standard license specification:
+    `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+  Standardizable: FALSE
+
+0 errors ✔ | 1 warning ✖ | 0 notes ✔
+```
+
+---
+
+&lt;img src="img/05_pacotes/check.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+# use_git() e use_github()
+
+Assim que terminarmos de preencher o `DESCRIPTION` e escolher uma licença,
+podemos configurar o Git e o repositório do GitHub do nosso pacote.
+Diferentemente do que fizemos aula passada, agora podemos criar o repositório
+diretamente do R.
+
+A função `use_git()` do usethis configura o repositório local do Git. Ao
+executá-la, ela cria um commit inicial adicionando todos os arquivos existentes
+até agora na pasta e reinicia o RStudio para que aparece a aba do Git.
+
+A função `use_github()` do mesmo pacote cria o repositório remoto no GitHub. Ela
+usa o nome do pacote como o nome do repositório e configura alguns campos do
+`DESCRIPTION` indicando que o pacote agora tem um endereço online.
+
+
+```r
+# Saída omitida
+usethis::use_git()
+usethis::use_github()
+```
+
+---
+# R/
+
+Dentro de um pacote, a pasta `R/` só pode ter arquivos R com funções. A ideia é
+guardar em um local comum tudo aquilo que nós utilizamos como ferramenta interna
+para nossas análises, bem como aquilo que queremos que outras pessoas possam
+usar no futuro.
+
+Mas por que usar apenas funções? Quem usa o nosso pacote (praticamente) só pode
+invocar as suas funções, então o R não consegue saber o que fazer com um script
+solto. Além disso, yma função é responsável por executar uma única tarefa muito
+bem, então nossas operações ficam mais confiáveis.
+
+Durante o processo de desenvolvimento precisaremos editar nossas funções e
+testá-las repetidamente. Felizmente, o devtools tem uma solução para nós: a
+função `load_all()` (atalho **CTRL + SHIFT + L**).
+
+Enquanto estivermos programando, vamos editar o código e executar a `load_all()`
+através do seu atalho inúmeras vezes para garantir que ela funciona
+corretamente. Quando tivermos concluído isso, vamos executar **CTRL + SHIFT +
+E** para checar tudo.
+
+---
+# Dependências
+
+Sem os inúmeros pacotes criados pela comunidade, o R provavelmente já estaria no
+porão da Ciência de Dados. Por isso, é a primeira coisa que escrevemos nos
+nossos scripts é quase sempre `library(pacote)`.
+
+Quando lidamos com pacotes, a função `library()` não pode ser utilizada e todas
+as funções devem ter seus pacotes de origem explicitamente referenciados pelo
+operador `::`. Já vimos ele em uso casualmente, mas agora ele se torna
+obrigatório.
+
+Com o `::`, nossos códigos executam um pouco mais rápido porque são carregadas
+menos funções no ambiente global (isso é especialmente importante em aplicações
+interativas feitas em Shiny).
+
+Além disso, precisamos declarar as nossas dependências explicitamente rodando
+`usethis::use_package("pacote")` uma vez para cada novo `pacote` que usarmos.
+
+É comum ficar incomodado com essas obrigatoriedades, mas o _autocomplete_ é
+nosso amigo e poderá facilitar muito a transição do `library()` para o `::`.
+
+---
+# Prática
+
+Como podemos transformar o código a seguir em uma função que fará parte de um
+pacote? Neste exemplo, calculamos a população e a expectativa de vida média de
+países em determinados continentes e anos.
+
+
+```r
+library(tidyverse)
+library(dados)
+
+dados_gapminder |&gt;
+  filter(continente %in% "Europa", ano &gt;= 2000) |&gt;
+  group_by(ano) |&gt;
+  summarise(
+    pop = sum(populacao) / 1e6,
+    vida = mean(expectativa_de_vida),
+    .groups = "drop"
+  )
+```
+
+---
+# Prática: ::
+
+O primeiro passo é adicionar o `::` em todas as funções externas. Para
+iniciantes pode ser difícil saber de qual pacote do tidyverse em cada função,
+mas depois de um tempo isso vira segunda natureza.
+
+
+```r
+library(tidyverse)
+library(dados)
+
+dados::dados_gapminder |&gt;
+  dplyr::filter(continente %in% "Europa", ano &gt;= 2000) |&gt;
+  dplyr::group_by(continente, ano) |&gt;
+  dplyr::summarise(
+    pop = sum(populacao) / 1e6,
+    vida = mean(expectativa_de_vida),
+    .groups = "drop"
+  )
+```
+
+---
+# Prática: dependências
+
+O segundo passo é remover os usos de `library()`.
+
+
+```r
+dados::dados_gapminder |&gt;
+  dplyr::filter(continente %in% "Europa", ano &gt;= 2000) |&gt;
+  dplyr::group_by(continente, ano) |&gt;
+  dplyr::summarise(
+    pop = sum(populacao) / 1e6,
+    vida = mean(expectativa_de_vida),
+    .groups = "drop"
+  )
+```
+
+No console, executamos os comandos que declaram as dependências:
+
+
+```r
+usethis::use_package("dplyr")
+usethis::use_package("dados")
+```
+
+---
+# Prática: função
+
+O terceiro passo é colocar o código dentro de uma função como explicado ao longo
+do _R para Ciência de Dados II_. Neste caso, chamaremos ela de
+`calcular_estatisticas()`.
+
+
+```r
+calcular_estatisticas &lt;- function() {
+  dados::dados_gapminder |&gt;
+    dplyr::filter(continente %in% "Europa", ano &gt;= 2000) |&gt;
+    dplyr::group_by(continente, ano) |&gt;
+    dplyr::summarise(
+      pop = sum(populacao) / 1e6,
+      vida = mean(expectativa_de_vida),
+      .groups = "drop"
+    )
+}
+```
+
+---
+# Prática: argumentos
+
+O quarto passo é escolher os argumentos da nossa função de modo que seu
+funcionamento não seja fixo. Isso depende muito do objetivo do código, então
+vale a pena perder uns minutos pensando sobre este passo.
+
+
+```r
+calcular_estatisticas &lt;- function(continentes, ano_minimo) {
+  dados::dados_gapminder |&gt;
+    dplyr::filter(continente %in% continentes, ano &gt;= ano_minimo) |&gt;
+    dplyr::group_by(continente, ano) |&gt;
+    dplyr::summarise(
+      pop = sum(populacao) / 1e6,
+      vida = mean(expectativa_de_vida),
+      .groups = "drop"
+    )
+}
+```
+
+---
+# Prática: argumentos opcionais
+
+O quinto passo é determinar quais argumentos são opcionais e quais são
+obrigatórios. Neste caso, queremos deixar o ano mínimo padrão como sendo 2000
+por causa da natureza da base que estamos usando.
+
+
+```r
+calcular_estatisticas &lt;- function(continentes, ano_minimo = 2000) {
+  dados::dados_gapminder |&gt;
+    dplyr::filter(continente %in% continentes, ano &gt;= ano_minimo) |&gt;
+    dplyr::group_by(continente, ano) |&gt;
+    dplyr::summarise(
+      pop = sum(populacao) / 1e6,
+      vida = mean(expectativa_de_vida),
+      .groups = "drop"
+    )
+}
+```
+
+---
+class: middle, center, inverse
+# Avançado
+
+---
+# Motivação
+
+Agora que aprendemos o básico de como fazer um pacote, desde seu esqueleto até a
+sua primeira função, precisamos explorar as funcionalidades mais avançadas que
+um pacote pode oferecer. As duas mais importantes são dados e documentação.
+
+Dados são essenciais em vários pacotes. No tidyverse elas são utilizadas como
+exemplos ilustrativos; o dplyr traz os dados `starwars`, o ggplot2 traz os dados
+`diamonds`, etc. Outros pacotes têm os dados como produto principal; o pacote
+[dados](https://github.com/cienciadedatos/dados), criado por várias pessoas da
+comunidade R brasileira, traz várias tabelas clássicas traduzidas para o
+português.
+
+Documentação é uma peça fundamental de todo pacote. É através dela que novas
+pessoas podem aprender a usar nossas funções, tirar dúvidas sobre nossos dados e
+assim por diante. Usar um pacote sem docs é como montar um móvel sem instruções.
+
+Nesta seção vamos falar sobre esses dois tópicos essenciais. Ainda não vamos
+falar sobre testes e outros assuntos correlatos, mas veremos tudo isso aula que
+vem.
+
+---
+# data-raw/ e data/
+
+É muito comum precisar usar dados dentro de um pacote. Se a tabela que você
+quiser utilizar for o resultado de um processo de manipulação de uma base crua,
+você pode salvar a base crua e o código desse processo na pasta `data-raw/`.
+
+Para isso, usamos a função `usethis::use_data_raw("nome")`. Ela cria a
+`data-raw/` na raiz do pacote (caso ela ainda não exista) e um arquivo `nome.R`
+dentro dela onde colocamos o código de manipulação da tabela crua. O arquivo tem
+essa cara:
+
+
+```r
+## code to prepare `nome` dataset goes here
+usethis::use_data(nome, overwrite = TRUE)
+```
+
+Depois de criar um script que crie a tabela `nome`, rodamos a última linha do
+arquivo que chama a função `usethis::use_data()`. Ela cria uma pasta `data/` na
+raiz do seu pacote (caso ela não exista ainda) e salva nela o objeto `nome` em
+formato `.rda`.
+
+Arquivos `.rda` permitem que data frames sejam acessíveis por quem usa o pacote.
+
+---
+# Prática: dados
+
+Os comandos abaixo ficariam no arquivo `data-raw/partidas_brasileirao.R`.
+
+
+```r
+partidas_brasileirao &lt;- readr::read_csv2("https://git.io/JOqUN")
+usethis::use_data(partidas_brasileirao)
+```
+
+O código abaixo ficaria na pasta `R/`, utilizando a tabela
+`partidas_brasileirao`.
+
+
+```r
+encontrar_pior_ano_time &lt;- function(time) {
+  partidas_brasileirao |&gt;
+    dplyr::group_by(temporada, quem_ganhou) |&gt;
+    dplyr::filter(quem_ganhou != "Empate", quem_ganhou %in% time) |&gt;
+    dplyr::count(quem_ganhou, sort = TRUE, name = "n_vitorias") |&gt;
+    dplyr::ungroup() |&gt;
+    dplyr::filter(n_vitorias == min(n_vitorias))
+}
+```
+
+---
+# R/ vs. data-raw/
+
+A pasta `data-raw/` é:
+
+- Nossa caixa de areia, onde podemos escrever qualquer código (mesmo que ele não
+respeite as regras de pacotes discutidas até agora)
+
+- Reservada para arquivos invisíveis a quem estiver usando nosso pacote, como
+códigos relacionados aos dados crus
+
+A pasta `R/` é:
+
+- Exclusivamente utilizada para código relacionado ao uso do pacote, ou seja,
+funções que podem eventualmente interagir com que o utiliza
+
+- Onde precisamos seguir as regras de pacotes, como nunca usar `library()`,
+sempre usar `::`, etc.
+
+- Onde a `check()` fará a grande maior parte de suas verificações
+
+---
+# Documentação
+
+Uma das partes mais importantes de um pacote é a documentação de suas funções e
+tabelas. É também através da documentação que fazemos uma série de escolhas
+como, por exemplo, quais funções devem ser exportadas e quais devem ser mantidas
+privadas.
+
+A documentação é declarada com o comentário especial `#'` e com rótulos que
+começam com `@`. Depois de instalar o pacote, a documentação de qualquer objeto
+pode ser acessada com `?objeto`.
+
+Ao executar a `check()`, a documentação já é atualizada e disponibilizada de
+brinde, mas podemos também regerar apenas a documentação com a `document()` do
+devtools (atalho **CTRL + SHIFT + D**).
+
+Se quisermos um facilitador na hora de documentar uma função, podemos clicar em
+**Code &gt; Insert Roxygen Skeleton** no RStudio. Esse comando vai inserir um
+esqueleto de documentação roxygen2 na função que tivermos selecionado, sendo
+roxygen2 o motor por trás das documentações do R.
+
+---
+# Documentação: rótulos
+
+Os rótulos mais importantes são:
+
+- `@param`: define cada parâmetro da função, podendo incluir uma breve
+explicação do que ele faz, do seu tipo e do seu valor padrão
+
+- `@return`: explica o tipo de objeto retornado pela função
+
+- `@examples`: delimita exemplos de como utilizar a função na prática
+
+- `@export`: indica que a função será pública, ou seja, ficará disponível após
+um `library()` ou com `::`. Não é necessário para tabelas que estejam no
+`data/`, pois elas são sempre exportadas
+
+- `@format`: define o formado da tabela, incluindo as colunas e suas respectivas descrições
+
+- `@source`: indica a fonte da tabela, normalmente um link envolto por `&lt;&gt;`
+
+---
+# Prática: documentação (função)
+
+
+```r
+#' Título da função
+#'
+#' Descrição da função
+#'
+#' @param a primeiro parâmetro
+#' @param b segundo parâmetro
+#' @return descrição do resultado
+#'
+#' @examples
+#' fun(1, 2)
+#'
+#' @export
+fun &lt;- function(a, b) {
+  a + b
+}
+```
+
+---
+# Prática: documentação (dados)
+
+
+```r
+#' Título da tabela
+#'
+#' Descrição da tabela
+#'
+#' @format Uma lista que descreve as colunas:
+#' \describe{
+#'   \item{col1}{Descrição da coluna 1}
+#'   \item{col2}{Descrição da coluna 2}
+#' }
+#'
+#' @source &lt;site.com/link/para/fonte&gt;
+"nome"
+```
+
+---
+# Problemas comuns
+
+No geral, queremos sempre escrever nossos pacotes em inglês, desde os nomes das
+funções até a documentação. Isso acontece porque é muito raro um pacote em
+qualquer outro idioma ser aceito pelo CRAN, apesar de existirem algumas
+exceções.
+
+Se quisermos fazer um pacote com documentação em português, o ideal é tentar
+escrever sem acentos ou escapar todas strings com a função `escape_unicode()` do
+pacote abjutils. O `check()` vai nos alertar caso essa regra seja violada.
+
+Variáveis globais são uma má prática em código R, então a `check()` também vai
+reclamar se encontrar algo do tipo; o problema é que as colunas modificadas em
+funções do dplyr são reconhecidas como globais.
+
+A solução neste caso é criar um arquivo com uma chamada para a função
+`utils::globalVariables()`, que recebe um vetor de strings com os nomes das
+variáveis globais sobre as quais o `check()` reclamou:
+
+
+```r
+utils::globalVariables(c("col1", "col2"))
+```
+
+---
+# Regras e sugestões
+
+Algumas regras sobre programação de pacotes:
+
+  - Nunca usar `library()` ou `require()`, pois isso vai causar problemas (usar
+  a notação `pacote::funcao()`)
+
+  - Nunca usar `source()`, pois todo o código já será carregado automaticamente
+  pela `devtools::load_all()`
+
+  - Nunca declarar dependências de "metapacotes" como o tidyverse, pois isso
+  trará mais dependências do que gostaríamos
+
+Algumas sugestões sobre como organizar nossos códigos:
+
+  - Para testar se o pacote vai funcionar quando instalado, podemos usar a
+  `devtools::install()` para instalá-lo localmente
+
+  - Limitar o código a no máximo 80 caracteres por linha e no máximo 100 linhas
+  por arquivo para melhorar a legibilidade do código
+
+---
+# Rodada bônus: CRAN
+
+Um pacote é uma coleção de código, dados, documentação e testes que qualquer
+pessoa pode instalar em sua máquina.
+
+Se quisermos criar apenas um conjunto de funções que provavelmente não serão
+utilizadas por muitas pessoas, podemos subir esse pacote para o GitHub e
+mantê-lo lá somente para garantir controle de versão. Instalar um pacote do
+GitHub é fácil, basta executar o comando `remotes::install_github("user/repo")`.
+
+Mas se quisermos que o máximo número possível de pessoas tenha acesso ao nosso
+pacote, pode ser que precisemos subi-lo para o CRAN (Comprehensive R Archive
+Network). Neste caso precisaremos que nosso pacote não tenha nenhum _warning_ ou
+_error_ no `check()`.
+
+Um pacote disponível no CRAN pode ser instalado com a clássica
+`install.packages()` e ficará disponível na forma de arquivo por muitos anos.
+Infelizmente, esse é um tópico muito extenso para tratarmos durante este curso.
+Para saber mais sobre o processo de submissão, vale a pena ler o [_R Packages
+(2e)_](https://r-pkgs.org/man.html).
+
+---
+class: middle, center, inverse
+# Fim
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

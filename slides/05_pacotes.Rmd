@@ -245,7 +245,7 @@ usar no futuro.
 
 Mas por que usar apenas funções? Quem usa o nosso pacote (praticamente) só pode
 invocar as suas funções, então o R não consegue saber o que fazer com um script
-solto. Além disso, yma função é responsável por executar uma única tarefa muito
+solto. Além disso, uma função é responsável por executar uma única tarefa muito
 bem, então nossas operações ficam mais confiáveis.
 
 Durante o processo de desenvolvimento precisaremos editar nossas funções e
@@ -253,7 +253,7 @@ testá-las repetidamente. Felizmente, o devtools tem uma solução para nós: a
 função `load_all()` (atalho **CTRL + SHIFT + L**).
 
 Enquanto estivermos programando, vamos editar o código e executar a `load_all()`
-através do seu atalho inúmeras vezes para garantir que ela funciona
+através do seu atalho inúmeras vezes para garantir que ele funciona
 corretamente. Quando tivermos concluído isso, vamos executar **CTRL + SHIFT +
 E** para checar tudo.
 
@@ -479,7 +479,7 @@ encontrar_pior_ano_time <- function(time) {
 ```
 
 ---
-# R/ vs. data-raw/
+# data-raw/ vs. R/
 
 A pasta `data-raw/` é:
 
@@ -497,7 +497,7 @@ funções que podem eventualmente interagir com que o utiliza
 - Onde precisamos seguir as regras de pacotes, como nunca usar `library()`,
 sempre usar `::`, etc.
 
-- Onde a `check()` fará a grande maior parte de suas verificações
+- Não pode conter subpastas, todos os arquivos precisam ficar no mesmo nível.
 
 ---
 # Documentação
@@ -563,6 +563,10 @@ fun <- function(a, b) {
 
 ---
 # Prática: documentação (dados)
+
+Para documentar uma ou mais tabelas, precisamos antes criar um arquivo novo na
+pasta `R/` que normalmente de `data.R`. Nele inserimos trechos de documentação
+seguindo o modelo abaixo:
 
 ```{r, eval = FALSE}
 #' Título da tabela

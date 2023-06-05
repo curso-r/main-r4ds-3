@@ -31,7 +31,7 @@ class: middle, center, inverse
 
 No _R para Ciência de Dados III_, vamos aprender tudo que falta sobre ciência de
 dados no R. Falaremos sobre projetos, faxina de dados avançada, conexão com
-bancos de dados, controle de versão, pacotes e integração contínua.
+bancos de dados, controle de versão, pacotes e integração.
 
 Mas, antes de fazermos qualquer outra coisa, precisamos preparar nosso ambiente
 de trabalho. Esse é um passo pouco abordado em outros cursos e livros, apesar de

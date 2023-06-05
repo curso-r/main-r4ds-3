@@ -29,4 +29,4 @@ abaixo**.
 - Conexão com bancos de dados
 - Git e GitHub
 - Pacotes
-- Integração contínua
+- Integração

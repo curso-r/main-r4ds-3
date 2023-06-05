@@ -114,6 +114,7 @@ através da interface do RStudio. No RStudio, o caminho é **File > New Project 
 New Directory > R Package**.
 
 ---
+class: middle
 
 ```{r, echo = FALSE, out.width = "80%"}
 knitr::include_graphics("img/05_pacotes/new_package.png")
@@ -208,6 +209,7 @@ Duration: 3.5s
 ```
 
 ---
+class: middle
 
 ```{r, echo = FALSE, out.width = "90%"}
 knitr::include_graphics("img/05_pacotes/check.png")

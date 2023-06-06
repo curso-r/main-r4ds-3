@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R para Ciência de Dados 3</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link rel="stylesheet" href="css/xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# R para Ciência de Dados 3
+]
+.subtitle[
+## Integração
+]
+.author[
+### <img src = 'https://d33wubrfki0l68.cloudfront.net/9b0699f18268059bdd2e5c21538a29eade7cbd2b/67e5c/img/logo/cursor1-5.png' width = '30%'>
+]
+
+---
+
+
+
+
+class: middle, center
+# Iniciar gravação!
+
+---
+class: middle, center, inverse
+# Integração
+
+---
+# Motivação
+
+Na aula passada aprendemos muitas coisas sobre como funcionam e como criar
+pacotes. Por eles serem a unidade fundamental de código compartilhável, garantir
+que um pacote esteja funcionando adequadamente é de vital importância; mas
+podemos ir muito além do básico.
+
+Existem vários extras que podem ser integrados a um pacote e que melhoram muito
+a experiência de iniciantes que estejam tentando engajar com o pacote pela
+primeira vez. Uma página inicial explicativa, uma documentação completa, um
+website atualizado e alguns testes unitários são apenas algumas dentre as
+infinitas possibilidades de aditivos que podemos integrar aos nossos pacotes.
+
+Na prática, essas integrações vão se manifestar na forma de arquivos e
+diretórios opcionais, ou seja, que só precisamos adicionar a um pacote se de
+fato precisarmos daquele recurso.
+
+Algumas dessas integrações também vão depender de operações repetitivas que
+vamos querer automatizar...
+
+---
+# README.md
+
+O arquivo `README.md` é o cartão de visitas de qualquer repositório no GitHub.
+Esse arquivo, escrito em
+[markdown](https://docs.github.com/pt/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax),
+é renderizado e exibido como a capa do repo, sendo a primeira coisa que qualquer
+pessoa vê quando o acessa.
+
+Ele deve conter informações importantes como logo (opcional!), breve descrição
+do que o pacote faz, instruções de instalação, exemplos de uso, etc. A função
+`use_readme_rmd()` do usethis cria o `README.Rmd` com um esqueleto para
+facilitar o preenchimento das informações.
+
+Esse `README.Rmd` é um [R Markdown](https://rmarkdown.rstudio.com/) e, portanto,
+permite que coloquemos código que pode ser executado dentro do próprio
+documento. Para converter o R Markdown em markdown comum, precisamos rodar a
+função `build_readme()` do pacote devtools.
+
+
+```r
+# Saída omitida
+usethis::use_readme_rmd()
+```
+
+---
+# vignettes/
+
+Além do `README.md` e da documentação individual de cada função, o R também
+permite que coloquemos _vignettes_ (pronunciado \\vinhetes\\) dentro de um
+pacote. Elas são documentos em HTML melhor formatados do que a documentação
+tradicional do R, permitindo que descrevamos melhor o funcionamento de um
+conjunto de ideias do pacote.
+
+Para criar uma nova _vignette_, basta usar a função `use_vignette()` do usethis.
+Ela vai criar no diretório `vignettes/` um documento R Markdown que será
+convertido em HTML de forma similar a como o `README.Rmd` é convertido em
+`README.md`.
+
+Depois de instalar um pacote, uma _vignette_ pode ser lida executando
+`vignette("nome", package = "pacote")`. Exemplos clássicos de _vignettes_
+incluem [_Introduction to
+dplyr_](https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html) e
+[_The tidy tools
+manifesto_](https://cran.r-project.org/web/packages/tidyverse/vignettes/manifesto.html).
+
+
+```r
+# Saída omitida
+usethis::use_vignette("nome")
+```
+
+---
+# inst/
+
+O diretório `inst/` é um coringa e permite que coloquemos arquivos adicionais
+arbitrários que gostaríamos de incluir no pacote. Isso quer dizer que esses
+arquivos serão copiados para o computador de quem instalar o pacote; justamente
+por isso não podemos tratar essa pasta como um lugar sem regras!
+
+Exemplos de arquivos que são normalmente colocados na `inst/` incluem o
+`CITATION` (que descreve como o pacote deve ser citado em publicações
+científicas), modelos R Markdown, _add-ins_ para o RStudio, arquivos com senhas
+para conexão com bancos de dados, etc.
+
+Para obter o caminho para qualquer objeto armazenado na pasta `inst/`, tanto
+dentro quanto fora do próprio pacote, devemos usar a função `system.file()`. O
+seu primeiro argumento é o caminho para o arquivo relativo à pasta `inst/`.
+
+
+```r
+# Saída omitida
+system.file("CITATION", package = "ggplot2")
+```
+
+---
+# docs/
+
+Um diretório opcional muito importante em  um pacote é o `docs/`, onde podemos
+colocar sites, relatórios, dashboards estáticos (flexdashboards), etc. Não
+existe uma forma de usar esses arquivos dentro do pacote, mas por convenção é lá
+que devem ficar essas formas mais interativas de comunicação.
+
+O pacote pkgdown usa essa pasta para criar um website instantâneo para um
+pacote. Com a função `use_pkgdown()` do usethis, o conteúdo do site será gerado
+a partir dos documentos já existentes no pacote: o `README.md` será usado para
+criar a página principal do site, a documentação das funções será usada para
+criar uma seção de referências e as _vignettes_ serão usadas para criar uma
+seção de artigos.
+
+É importante notar que o site não é atualizado automaticamente, então, caso
+mudemos algo nos itens acima, precisamos rodar `pkgdown::build_site()`.
+
+
+```r
+# Saída omitida
+usethis::use_pkgdown()
+```
+
+---
+# GitHub Pages
+
+O jeito mais simples de publicar um site gerado via pkgdown é usando um recurso
+gratuito chamado [GitHub Pages](https://docs.github.com/pt/pages). Ele é uma
+funcionalidade do próprio GitHub que nos permite colocar documentos HTML em um
+repositório e servi-los na forma de website.
+
+Depois de subir um pacote com um site na pasta `docs/`, podemos disponibilizá-lo
+na internet para que outras pessoas consultem seguindo os seguintes passos:
+
+  1. No repositório do pacote, clicar em **Settings**, e no menu lateral
+  escolher **Pages**
+
+  2. Selecionar **Deploy from a branch**, escolher o branch `main` e o diretório
+  `docs/`, e clicar em **Save**
+
+Depois de alguns minutos, o site deve ficar acessível. O endereço de um site
+publicado com GitHub Pages sempre terá a forma
+`https://seu-username.github.io/nome-repositorio/`, mas isso pode ser modificado
+caso tenhamos o nosso próprio
+[domínio](https://docs.github.com/pt/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages).
+
+---
+class: middle, center
+
+&lt;img src="img/06_integracao/gh_pages.png" width="1528" style="display: block; margin: auto;" /&gt;
+
+---
+# tests/
+
+De todos os diretórios opcionais que já vimos, o `tests/` é o que mais se
+destaca. Testes são vitais em qualquer pacote com um certo nível de
+complexidade: eles garantem que o código faz o que queremos mesmo depois de
+grandes alterações.
+
+O pacote testthat facilita o processo de criação de testes que, admitidamente,
+não é tão simples. No geral, gastamos uma quantidade não trivial de tempo
+criando testes para todas as funções do pacote, então a comunidade R costuma ser
+resistentes à criação de testes. O fato, entretanto, é que o CRAN exige testes
+relativamente completos para aceitar um pacote novo!
+
+A função `use_testthat()` do usethis faz o setup que nos permite usar testes em
+um pacote. Quando quisermos criar um novo arquivo de testes, podemos recorrer à
+`use_test()`.
+
+
+```r
+# Saída omitida
+usethis::use_testthat()
+```
+
+---
+# test_that()
+
+Um arquivo de testes criado para o testthat tem duas estruturas principais:
+**testes** e **expectativas**. No geral criamos um arquivo de testes para cada
+arquivo da pasta `R/`, mas isso depende muito do estilo de cada pessoa.
+
+Um teste é declarado com a função `test_that()` e indica um bloco de testes cujo
+objetivo é garantir que uma funcionalidade foi implementada corretamente. Uma
+expectativa é declarada com uma função da família `expect_*()` e realiza uma
+verificação dentro do teste, comparando o valor retornado pela expressão com
+alguma referência.
+
+Um teste precisa ser independente dos outros (inclusive os do mesmo arquivo) e
+ter um objetivo definido, declarado através de sua descrição. A independência
+dos testes é importante, porque eles serão executados em paralelo mesmo que
+digam respeito à mesma função e estejam no mesmo arquivo.
+
+Sempre que quisermos rodar os testes de um pacote, podemos usar a `check()`
+normalmente ou rodar `devtools::test()` (atalho **CTRL + SHIFT + T**).
+
+---
+# test_that(): exemplo
+
+Considerando a função `tira_media()`, podemos pensar em pelo menos dois testes
+com duas expectativas cada um:
+
+
+```r
+tira_media &lt;- function(x, rm_na = TRUE) {
+  purrr::reduce(x, sum, na.rm = rm_na)/conta_itens(x, rm_na)
+}
+```
+
+
+```r
+test_that("taking the mean works", {
+  expect_equal(tira_media(c(1, 2, 3, 4, NA, 6)), 3.2)
+  expect_equal(tira_media(c(1, 2, 3, 4, 6)), 3.2)
+})
+test_that("rm_na works as expected", {
+  expect_output(tira_media(c(1, 2, NA), rm_na = FALSE), NA)
+  expect_equal(tira_media(c(NA, NA, NA)), NaN)
+})
+```
+
+---
+# .github/
+
+O diretório `.github/` é responsável por integrações com o GitHub, principalmente
+no tocante à **integração contínua**. Esse conceito é muito importante na
+computação, principalmente quando falamos de programas muito complexos, mas aqui
+podemos pensar nele como a automatização de algumas tarefas repetitivas.
+
+No nosso caso, por exemplo, podemos querer automatizar o `check()` de um pacote
+em vários sistemas operacionais para que não precisemos copiar e colar nosso
+código de um computador para o outro só para testá-lo. Também seria interessante
+gerar o pkgdown de um pacote toda vez que o pacote for atualizado no GitHub.
+
+Nesta linha, o `.github/` controla um recurso importante do GitHub chamado
+[GitHub Actions](https://docs.github.com/pt/actions), que nos permite executar
+tarefas na nuvem toda vez que nosso repositório for atualizado.
+
+Todos os pacotes do tidyverse utilizam o GitHub Actions para executar seus
+testes, mas ele tem outros usos muito poderosos. O pacote
+[mananciais](https://beatrizmilz.github.io/mananciais/), por exemplo, atualiza
+diariamente a sua própria base de dados usando GitHub Actions.
+
+---
+# Workflows
+
+Os arquivos dentro da pasta `.github/workflows` declaram _workflows_ a serem
+executados pelo GitHub Actions. Como já mencionado, é comum definir workflows
+para testagem de pacotes, geração de documentação, atualização de dados, etc.
+
+Um _workflow_ funciona, essencialmente, como um "duende mágico" que baixa o
+nosso repositório em um servidor do GitHub e executa os comandos especificados.
+Por usar muitos recursos, esses duendes têm um custo; o plano gratuito do GitHub
+já é o suficiente para 99% dos nossos usos, mas vale tomar cuidado para não
+exagerar nos _workflows_ (principalmente se eles dependerem de máquinas MacOS).
+
+O _workflow_ mais clássico é o de checagem automática de um pacote. Para criar
+ele, basta rodar a função `use_github_action_check_release()` do usethis. Ela
+vai criar o arquivo `R-CMD-check.yaml`, que já faz tudo que precisamos.
+
+
+```r
+# Saída omitida
+usethis::use_github_action_check_release()
+```
+
+---
+# Workflows: pkgdown
+
+Além da checagem automática, um dos _workflows_ mais utilizados é o que atualiza
+automaticamente o GitHub Pages de um pacote. Ele faz exatamente o mesmo processo
+que a função `pkgdown::build_site()` dentro do servidor do GitHub, mas salva os
+resultados dentro de um branch chamado `gh-pages`.
+
+Por causa dessa questão dos branches, precisamos reconfigurar o GitHub Pages do
+nosso repositório:
+
+  1. No repositório do pacote, clicar em **Settings**, e no menu lateral
+  escolher **Pages**
+
+  2. Selecionar **Deploy from a branch**, escolher o branch `gh-pages` e o
+  diretório `docs/`, e clicar em **Save**
+
+Para ver outros _workflows_ interessantes, basta olhar o repo
+[r-lib/actions](https://github.com/r-lib/actions).
+
+
+```r
+# Saída omitida
+usethis::use_github_action("pkgdown")
+```
+
+---
+class: middle, center, inverse
+# Fim
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

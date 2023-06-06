@@ -51,3 +51,5 @@ ano <- 2018
 ```
 
 # Aula 6 -----------------------
+
+Faça o trabalho de conclusão descrito no arquivo `tcc.Rmd`.

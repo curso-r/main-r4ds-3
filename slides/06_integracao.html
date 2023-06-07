@@ -212,11 +212,11 @@ Um arquivo de testes criado para o testthat tem duas estruturas principais:
 **testes** e **expectativas**. No geral criamos um arquivo de testes para cada
 arquivo da pasta `R/`, mas isso depende muito do estilo de cada pessoa.
 
-Um teste é declarado com a função `test_that()` e indica um bloco de testes cujo
-objetivo é garantir que uma funcionalidade foi implementada corretamente. Uma
-expectativa é declarada com uma função da família `expect_*()` e realiza uma
-verificação dentro do teste, comparando o valor retornado pela expressão com
-alguma referência.
+Um teste é declarado com a função `test_that()` e indica um bloco de
+verificações cujo objetivo é garantir que uma funcionalidade foi implementada
+corretamente. Uma expectativa é declarada com uma função da família `expect_*()`
+e realiza uma verificação dentro do teste, comparando o valor retornado pela
+expressão com alguma referência.
 
 Um teste precisa ser independente dos outros (inclusive os do mesmo arquivo) e
 ter um objetivo definido, declarado através de sua descrição. A independência
@@ -311,7 +311,7 @@ nosso repositório:
   escolher **Pages**
 
   2. Selecionar **Deploy from a branch**, escolher o branch `gh-pages` e o
-  diretório `docs/`, e clicar em **Save**
+  diretório `/ (root)`, e clicar em **Save**
 
 Para ver outros _workflows_ interessantes, basta olhar o repo
 [r-lib/actions](https://github.com/r-lib/actions).
